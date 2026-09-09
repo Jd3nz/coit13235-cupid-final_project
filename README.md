@@ -1,8 +1,16 @@
-# Cupid Matching Component
+# Cupid Enterprise System
 
 COIT13235 Enterprise Software Development — Assignment 3.
 
 ## Requirements covered
+
+### Profile lifecycle - Allaine
+
+- `FR_Profile`
+- `FR_Profile_Fetch`
+- `FR_Profile_Keep_Ethics`
+
+### Matching - Jay
 
 - `FR_Swipe`
 - `FR_Swipe_History`
@@ -14,6 +22,21 @@ COIT13235 Enterprise Software Development — Assignment 3.
 - `NFR_Deployability`
 - `NFR_Input_Sanitise`
 - `NFR_Traceability`
+
+## Profile ethical safeguard
+
+Account deletion is implemented as a soft deactivation so that the profile is
+removed from discovery while existing swipe and match records remain valid.
+It is disabled by default. To demonstrate the deliberately difficult but
+possible action, set the following single property to `true` and restart the
+application:
+
+```properties
+cupid.profile.account-deletion-enabled=true
+```
+
+The Profile component still requires an explicit checkbox confirmation before
+deactivation is processed by the server.
 
 ## Technology
 

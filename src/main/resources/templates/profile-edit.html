@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+    >
+    <title th:text="${isNew} ? 'Create profile | Cupid' : 'Edit profile | Cupid'">
+        Profile | Cupid
+    </title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+        main {
+            max-width: 680px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+        .back-link {
+            color: #344054;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .card {
+            margin-top: 24px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+        label {
+            display: block;
+            margin: 20px 0 7px;
+            font-weight: 700;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #98a2b3;
+            border-radius: 10px;
+            font: inherit;
+        }
+        textarea { min-height: 130px; resize: vertical; }
+        .help-text, .field-error { font-size: 14px; }
+        .help-text { color: #667085; }
+        .field-error, .error-message { color: #991b1b; }
+        .error-message {
+            margin: 18px 0;
+            padding: 12px;
+            border-radius: 10px;
+            background: #fee2e2;
+        }
+        .submit-button {
+            width: 100%;
+            margin-top: 28px;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: #18202a;
+            color: #ffffff;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .submit-button:hover { background: #303a47; }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/cupid.css}">
+</head>
+<body>
+<main>
+    <a class="back-link" th:href="@{/}">← Back to Cupid</a>
+
+    <section class="card">
+        <h1 th:text="${isNew} ? 'Create your profile' : 'Edit your profile'">
+            Edit your profile
+        </h1>
+
+        <p>
+            Your details are used to show an active Cupid profile. Images and
+            shared preferences are managed by the Profile Pictures component.
+        </p>
+
+        <p
+                class="error-message"
+                th:if="${errorMessage}"
+                th:text="${errorMessage}"
+        >
+            Unable to save profile.
+        </p>
+
+        <form
+                th:action="${formAction}"
+                th:object="${profileForm}"
+                method="post"
+        >
+            <label for="displayName">Display name</label>
+            <input
+                    id="displayName"
+                    type="text"
+                    th:field="*{displayName}"
+                    maxlength="100"
+                    autocomplete="name"
+                    required
+            >
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('displayName')}"
+                    th:errors="*{displayName}"
+            >
+                Invalid display name.
+            </p>
+
+            <label for="age">Age</label>
+            <input
+                    id="age"
+                    type="number"
+                    th:field="*{age}"
+                    min="18"
+                    max="120"
+                    required
+            >
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('age')}"
+                    th:errors="*{age}"
+            >
+                Invalid age.
+            </p>
+
+            <label for="bio">Bio</label>
+            <textarea
+                    id="bio"
+                    th:field="*{bio}"
+                    maxlength="500"
+                    aria-describedby="bio-help"
+            ></textarea>
+            <p id="bio-help" class="help-text">
+                Up to 500 characters. Markup is removed before the bio is saved.
+            </p>
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('bio')}"
+                    th:errors="*{bio}"
+            >
+                Invalid bio.
+            </p>
+
+            <button class="submit-button" type="submit">
+                <span th:text="${isNew} ? 'Create profile' : 'Save profile'">
+                    Save profile
+                </span>
+            </button>
+        </form>
+    </section>
+</main>
+</body>
+</html>
