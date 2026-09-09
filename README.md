@@ -1,6 +1,6 @@
 # Cupid Matching Component
 
-COIT13235 Enterprise Software Development — Assignment 1.
+COIT13235 Enterprise Software Development — Assignment 3.
 
 ## Requirements covered
 
