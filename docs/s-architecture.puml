@@ -1,0 +1,139 @@
+@startuml
+title Cupid System - Architecture Overview
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+
+actor User
+
+node "Web Browser" as Browser {
+  component "Thymeleaf Pages" as Pages {
+    [Home]
+    [Profile Pages]
+    [Discover / Matches / History]
+    [Messages]
+    [Settings]
+  }
+}
+
+node "Spring Boot 4.1 Application - Port 8080" as App {
+
+  package "Profile Component (Allaine, Tanzim)" as Profile {
+    [ProfileController] as PC
+    [ProfilePictureController] as PPC
+    [ProfileService] as PS
+    [ProfilePictureService] as PPS
+    [ProfileRepository] as PRepo
+    [ProfilePictureRepository] as PPRepo
+  }
+
+  package "Matching Component (Jay)" as Matching {
+    [DiscoveryController] as DC
+    [SwipeController] as SC
+    [MatchController] as MC
+    [SwipeHistoryController] as SHC
+    [DiscoveryService] as DS
+    [SwipeService] as SS
+    [MatchService] as MS
+    [SwipeHistoryService] as SHS
+    [UserRepository] as UR
+    [SwipeRepository] as SR
+    [MatchRepository] as MR
+    [SwipeHistoryRepository] as SHR
+  }
+
+  package "Messaging Component (Hung)" as Messaging {
+    [MessageController] as MSGC
+    [ThreadController] as TC
+    [MessageService] as MSGS
+    [MessageRepository] as MSGR
+    [ThreadRepository] as TR
+  }
+
+  package "Shared (Tanzim)" as Shared {
+    [HomeController] as HC
+    [SettingsController] as SETC
+    [SettingsService] as SETS
+    [GlobalExceptionHandler] as GEH
+    [InputSanitiser] as IS
+  }
+
+  package "Configuration" as Config {
+    [MatchingProperties]
+    [ProfileProperties]
+    [MessagingProperties]
+    [Ethics Toggles\n(3 single-flag settings)]
+  }
+}
+
+database "MySQL - localhost:3306" as DB {
+  [users]
+  [profile_pictures]
+  [current_swipes]
+  [swipe_history]
+  [matches]
+  [messages]
+  [message_threads]
+}
+
+User --> Browser
+Browser --> App : HTTP requests
+
+PC --> PS
+PPC --> PPS
+PS --> PRepo
+PPS --> PPRepo
+PPS --> IS
+
+DC --> DS
+SC --> SS
+MC --> MS
+SHC --> SHS
+DS --> UR
+SS --> UR
+SS --> SR
+SS --> MR
+MS --> MR
+SHS --> SHR
+
+MSGC --> MSGS
+TC --> MSGS
+MSGS --> MSGR
+MSGS --> TR
+
+HC --> SETS
+SETC --> SETS
+
+PRepo --> DB
+PPRepo --> DB
+UR --> DB
+SR --> DB
+MR --> DB
+SHR --> DB
+MSGR --> DB
+TR --> DB
+
+note bottom of Profile
+  Profile lifecycle: create, view, edit, soft-delete
+  Pictures: upload validation and storage
+  Ethics: account-deletion-enabled toggle
+end note
+
+note bottom of Matching
+  Depends on users table from Profile
+  Ethics: swipe-encouragement-enabled toggle
+end note
+
+note bottom of Messaging
+  Depends on matches table - can only message matched users
+  Ethics: message-coercion-enabled toggle
+end note
+
+note bottom of Shared
+  Settings UI reads and writes all 3 ethics toggles from one page
+  Home page routes to all components
+end note
+
+@enduml
