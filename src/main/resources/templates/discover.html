@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Discover | Cupid Matching</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+
+        .top-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .back-link {
+            color: #344054;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .viewer {
+            color: #667085;
+        }
+
+        .profile-card {
+            overflow: hidden;
+            background: white;
+            border-radius: 22px;
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.10);
+        }
+
+        .profile-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 280px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #fde2e7,
+                    #e7e9ff
+                );
+            font-size: 90px;
+        }
+
+        .profile-content {
+            padding: 28px;
+        }
+
+        .profile-content h1 {
+            margin: 0 0 8px;
+        }
+
+        .age {
+            margin: 0;
+            color: #667085;
+            font-weight: 700;
+        }
+
+        .bio {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .action-button {
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .dislike-button {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .like-button {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .next-step {
+            margin-top: 18px;
+            color: #667085;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .empty-state {
+            padding: 40px;
+            background: white;
+            border-radius: 18px;
+            text-align: center;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-button {
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            opacity: 0.85;
+        }
+
+        .match-message {
+            background: #fce7f3;
+            color: #9d174d;
+            border: 2px solid #f9a8d4;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .navigation-links {
+            display: flex;
+            gap: 18px;
+        }
+    </style>
+</head>
+
+<body>
+<main>
+    <nav class="top-navigation">
+    <div class="navigation-links">
+        <a
+            class="back-link"
+            th:href="@{/}"
+        >
+            ← Change user
+        </a>
+
+        <a
+            class="back-link"
+            th:href="@{/matches(userId=${viewer.id})}"
+        >
+            My Matches
+        </a>
+
+        <a
+            class="back-link"
+            th:href="@{/history(userId=${viewer.id})}"
+        >
+            Swipe History
+        </a>
+    </div>
+
+    <span
+        class="viewer"
+        th:text="|Using Cupid as ${viewer.displayName}|"
+    >
+        Using Cupid as Alex
+    </span>
+</nav>
+
+    <div
+        class="message match-message"
+        th:if="${matchMessage}"
+        th:text="${matchMessage}"
+    >
+        It's a match!
+    </div>
+
+    <div
+        class="message success-message"
+        th:if="${successMessage}"
+        th:text="${successMessage}"
+    >
+        Swipe recorded successfully.
+    </div>
+    
+    <div
+        class="message error-message"
+        th:if="${errorMessage}"
+        th:text="${errorMessage}"
+    >
+        Unable to record swipe.
+    </div>
+
+    <section
+        class="profile-card"
+        th:if="${profile != null}"
+    >
+        <div class="profile-image">
+            👤
+        </div>
+
+        <div class="profile-content">
+            <h1 th:text="${profile.displayName}">
+                Profile name
+            </h1>
+
+            <p
+                class="age"
+                th:text="|${profile.age} years old|"
+            >
+                24 years old
+            </p>
+
+            <p
+                class="bio"
+                th:text="${profile.bio}"
+            >
+                Profile biography
+            </p>
+
+            <form
+    th:action="@{/swipes}"
+    method="post"
+>
+    <input
+        type="hidden"
+        name="viewerId"
+        th:value="${viewer.id}"
+    >
+
+    <input
+        type="hidden"
+        name="targetUserId"
+        th:value="${profile.id}"
+    >
+
+    <div class="actions">
+        <button
+            class="action-button dislike-button"
+            type="submit"
+            name="decision"
+            value="DISLIKE"
+        >
+            Dislike
+        </button>
+
+        <button
+            class="action-button like-button"
+            type="submit"
+            name="decision"
+            value="LIKE"
+        >
+            Like
+        </button>
+    </div>
+</form>
+
+            <p class="next-step">
+                Your decision will be stored securely in swipe history.
+            </p>
+        </div>
+    </section>
+
+    <section
+        class="empty-state"
+        th:if="${profile == null}"
+    >
+        <h2>No more profiles</h2>
+
+        <p>
+            There are currently no additional profiles available.
+        </p>
+
+        <a th:href="@{/}">
+            Return to user selection
+        </a>
+    </section>
+</main>
+</body>
+</html>

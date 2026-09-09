@@ -1,0 +1,100 @@
+@startuml
+
+title Cupid Matching Component — Entity Relationship Diagram
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam entity {
+  BackgroundColor white
+  BorderColor #344054
+}
+
+entity "users" as users {
+  * id : BIGINT AUTO_INCREMENT <<PK>>
+  --
+  * display_name : VARCHAR(100)
+  * age : INTEGER
+  bio : VARCHAR(500) <<nullable>>
+  * active : BOOLEAN = TRUE
+  * created_at : TIMESTAMP(6) = CURRENT_TIMESTAMP
+  --
+  CHECK age BETWEEN 18 AND 120
+}
+
+entity "current_swipes" as current_swipes {
+  * id : BIGINT AUTO_INCREMENT <<PK>>
+  --
+  * swiper_id : BIGINT <<FK users.id>>
+  * target_user_id : BIGINT <<FK users.id>>
+  * decision : VARCHAR(10)
+  * created_at : TIMESTAMP(6) = CURRENT_TIMESTAMP
+  * updated_at : TIMESTAMP(6) = CURRENT_TIMESTAMP
+  --
+  uq_current_swipe UNIQUE(swiper_id, target_user_id)
+  chk_current_swipe_not_self CHECK(swiper_id <> target_user_id)
+  CHECK decision IN ('LIKE', 'DISLIKE')
+}
+
+entity "swipe_history" as swipe_history {
+  * id : BIGINT AUTO_INCREMENT <<PK>>
+  --
+  * swiper_id : BIGINT <<FK users.id>>
+  * target_user_id : BIGINT <<FK users.id>>
+  * decision : VARCHAR(10)
+  * swiped_at : TIMESTAMP(6) = CURRENT_TIMESTAMP
+  --
+  chk_swipe_history_not_self CHECK(swiper_id <> target_user_id)
+  CHECK decision IN ('LIKE', 'DISLIKE')
+}
+
+entity "matches" as matches {
+  * id : BIGINT AUTO_INCREMENT <<PK>>
+  --
+  * user_one_id : BIGINT <<FK users.id>>
+  * user_two_id : BIGINT <<FK users.id>>
+  * matched_at : TIMESTAMP(6) = CURRENT_TIMESTAMP
+  * status : VARCHAR(20) = 'ACTIVE'
+  --
+  uq_match_pair UNIQUE(user_one_id, user_two_id)
+  chk_match_order CHECK(user_one_id < user_two_id)
+  CHECK status IN ('ACTIVE', 'UNMATCHED')
+}
+
+users ||--o{ current_swipes : "swiper_id"
+users ||--o{ current_swipes : "target_user_id"
+users ||--o{ swipe_history : "swiper_id"
+users ||--o{ swipe_history : "target_user_id"
+users ||--o{ matches : "user_one_id"
+users ||--o{ matches : "user_two_id"
+
+note right of current_swipes
+  Latest directional swipe decision.
+  saveCurrentSwipe() performs an UPSERT on
+  (swiper_id, target_user_id).
+
+  Indexes:
+  - idx_current_swipes_swiper(swiper_id)
+  - idx_current_swipes_target_decision
+    (target_user_id, decision)
+end note
+
+note right of swipe_history
+  Append-only record of every swipe action.
+
+  Index:
+  - idx_swipe_history_swiper_time
+    (swiper_id, swiped_at DESC)
+end note
+
+note right of matches
+  Created or reactivated after reciprocal LIKEs.
+  MatchRepository orders IDs using min/max before
+  INSERT ... ON CONFLICT DO UPDATE status='ACTIVE'.
+
+  Indexes:
+  - idx_matches_user_one(user_one_id)
+  - idx_matches_user_two(user_two_id)
+end note
+
+@enduml

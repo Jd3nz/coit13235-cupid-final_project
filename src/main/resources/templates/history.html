@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Swipe History | Cupid Matching</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+
+        main {
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+
+        .top-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .navigation-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .navigation-link {
+            color: #344054;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .navigation-link:hover {
+            text-decoration: underline;
+        }
+
+        .viewer {
+            color: #667085;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            margin-top: 0;
+            color: #667085;
+        }
+
+        .history-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .history-card {
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .profile-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background:
+                linear-gradient(
+                    135deg,
+                    #fce7f3,
+                    #e0e7ff
+                );
+            font-size: 32px;
+        }
+
+        .history-content h2 {
+            margin: 0 0 6px;
+            font-size: 20px;
+        }
+
+        .age {
+            margin: 0 0 8px;
+            color: #667085;
+            font-weight: 700;
+        }
+
+        .bio {
+            margin: 0;
+            color: #475467;
+            line-height: 1.5;
+        }
+
+        .history-details {
+            min-width: 150px;
+            text-align: right;
+        }
+
+        .decision-badge {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .like-badge {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .dislike-badge {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .swipe-date {
+            margin: 10px 0 0;
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            padding: 45px 30px;
+            background: white;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow:
+                0 10px 28px rgba(0, 0, 0, 0.06);
+        }
+
+        .discover-button {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: #18202a;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        @media (max-width: 700px) {
+            .top-navigation {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .history-card {
+                grid-template-columns: 65px 1fr;
+            }
+
+            .profile-image {
+                width: 58px;
+                height: 58px;
+            }
+
+            .history-details {
+                grid-column: 1 / -1;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<main>
+    <nav class="top-navigation">
+        <div class="navigation-links">
+            <a
+                class="navigation-link"
+                th:href="@{/}"
+            >
+                ← Change user
+            </a>
+
+            <a
+                class="navigation-link"
+                th:href="@{/discover(userId=${viewer.id})}"
+            >
+                Discover
+            </a>
+
+            <a
+                class="navigation-link"
+                th:href="@{/matches(userId=${viewer.id})}"
+            >
+                My Matches
+            </a>
+        </div>
+
+        <span
+            class="viewer"
+            th:text="|Using Cupid as ${viewer.displayName}|"
+        >
+            Using Cupid as Alex
+        </span>
+    </nav>
+
+    <header class="page-header">
+        <h1>Swipe History</h1>
+
+        <p>
+            A record of every profile you liked or disliked.
+        </p>
+    </header>
+
+    <section
+        class="history-list"
+        th:unless="${#lists.isEmpty(history)}"
+    >
+        <article
+            class="history-card"
+            th:each="item : ${history}"
+        >
+            <div class="profile-image">
+                👤
+            </div>
+
+            <div class="history-content">
+                <h2 th:text="${item.displayName}">
+                    Profile name
+                </h2>
+
+                <p
+                    class="age"
+                    th:text="|${item.age} years old|"
+                >
+                    24 years old
+                </p>
+
+                <p
+                    class="bio"
+                    th:text="${item.bio}"
+                >
+                    Profile biography
+                </p>
+            </div>
+
+            <div class="history-details">
+                <span
+                    class="decision-badge"
+                    th:classappend="${
+                        item.decision.name() == 'LIKE'
+                            ? 'like-badge'
+                            : 'dislike-badge'
+                    }"
+                    th:text="${item.decision}"
+                >
+                    LIKE
+                </span>
+
+                <p
+                    class="swipe-date"
+                    th:text="|${
+                        #temporals.format(
+                            item.swipedAt,
+                            'dd MMM yyyy, hh:mm a'
+                        )
+                    }|"
+                >
+                    02 Aug 2026, 11:30 AM
+                </p>
+            </div>
+        </article>
+    </section>
+
+    <section
+        class="empty-state"
+        th:if="${#lists.isEmpty(history)}"
+    >
+        <h2>No swipe history yet</h2>
+
+        <p>
+            Your Like and Dislike decisions will appear here.
+        </p>
+
+        <a
+            class="discover-button"
+            th:href="@{/discover(userId=${viewer.id})}"
+        >
+            Discover profiles
+        </a>
+    </section>
+</main>
+</body>
+</html>

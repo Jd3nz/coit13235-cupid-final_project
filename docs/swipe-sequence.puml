@@ -1,0 +1,130 @@
+@startuml
+
+title Cupid Matching Component — Swipe, History and Mutual Match Sequence
+
+skinparam shadowing false
+
+autonumber
+actor User
+boundary "discover.html\n(Thymeleaf form)" as DiscoverPage
+control "Spring MVC binding +\nJakarta Validation" as MVC
+control SwipeController
+control SwipeService
+entity UserRepository
+entity CurrentSwipeRepository
+entity SwipeHistoryRepository
+entity MatchRepository
+database MySQL
+control GlobalExceptionHandler
+control DiscoveryController
+control DiscoveryService
+
+User -> DiscoverPage : Click LIKE or DISLIKE
+DiscoverPage -> MVC : POST /swipes\nviewerId, targetUserId, decision
+MVC -> MVC : Bind SwipeRequest and apply @Valid
+MVC -> SwipeController : recordSwipe(request, bindingResult, redirectAttributes)
+
+alt Binding or validation errors
+  SwipeController -> SwipeController : addFlashAttribute("errorMessage", ...)
+  alt viewerId is null or <= 0
+    SwipeController --> DiscoverPage : 302 redirect /
+  else viewerId is positive
+    SwipeController --> DiscoverPage : 302 redirect /discover?userId={viewerId}
+  end
+else Valid SwipeRequest
+  SwipeController -> SwipeService : recordSwipe(request)
+
+  group @Transactional SwipeService.recordSwipe()
+    SwipeService -> SwipeService : validateRequest(request)
+
+    alt null/invalid IDs, missing decision, or self-swipe
+      SwipeService --> SwipeController : throw InvalidSwipeException
+    else Request passes business validation
+      SwipeService -> UserRepository : findById(viewerId)
+      UserRepository -> MySQL : SELECT user WHERE id = ?
+      MySQL --> UserRepository : viewer row / no row
+      UserRepository --> SwipeService : Optional<User>
+
+      SwipeService -> UserRepository : findById(targetUserId)
+      UserRepository -> MySQL : SELECT user WHERE id = ?
+      MySQL --> UserRepository : target row / no row
+      UserRepository --> SwipeService : Optional<User>
+
+      alt viewer/target missing or inactive
+        SwipeService --> SwipeController : throw InvalidSwipeException
+      else both users active
+        SwipeService -> UserRepository : lockUserPair(viewerId, targetUserId)
+        UserRepository -> MySQL : SELECT id ... ORDER BY id FOR UPDATE
+        MySQL --> UserRepository : user pair locked
+
+        SwipeService -> CurrentSwipeRepository : find or save current swipe
+        CurrentSwipeRepository -> MySQL : SELECT or INSERT/UPDATE current_swipes
+        MySQL --> CurrentSwipeRepository : current swipe saved
+
+        SwipeService -> SwipeHistoryRepository : save swipe history
+        SwipeHistoryRepository -> MySQL : INSERT swipe_history
+        MySQL --> SwipeHistoryRepository : history saved
+
+        alt decision == DISLIKE
+          SwipeService --> SwipeController : SwipeResult.recorded()
+        else decision == LIKE
+          SwipeService -> MatchRepository : hasReciprocalLike(viewerId, targetUserId)
+          CurrentSwipeRepository -> MySQL : SELECT reciprocal LIKE
+          MySQL --> CurrentSwipeRepository : true / false
+          MatchRepository --> SwipeService : reciprocalLike
+
+          alt reciprocalLike == false
+            SwipeService --> SwipeController : SwipeResult.recorded()
+          else reciprocalLike == true
+            SwipeService -> MatchRepository : find or save ordered match
+            MatchRepository -> MatchRepository : userOne=min(ids), userTwo=max(ids)
+            MatchRepository -> MySQL : SELECT or INSERT/UPDATE matches
+            MySQL --> MatchRepository : match saved
+            MatchRepository --> SwipeService : return
+            SwipeService --> SwipeController : SwipeResult.matchCreated()
+          end
+        end
+      end
+    end
+  end
+
+  alt InvalidSwipeException
+    SwipeController -> SwipeController : addFlashAttribute("errorMessage", exception.message)
+  else SwipeResult.matched == true
+    SwipeController -> SwipeController : addFlashAttribute("matchMessage", ...)
+  else swipe recorded without match
+    SwipeController -> SwipeController : addFlashAttribute("successMessage", ...)
+  end
+
+  SwipeController --> DiscoverPage : 302 redirect /discover?userId={viewerId}
+end
+
+DiscoverPage -> DiscoveryController : GET /discover?userId={viewerId}
+DiscoveryController -> DiscoveryService : findViewer(viewerId)
+DiscoveryService -> UserRepository : findById(viewerId)
+UserRepository -> MySQL : SELECT viewer
+MySQL --> UserRepository : viewer row
+UserRepository --> DiscoveryService : Optional<User>
+DiscoveryService --> DiscoveryController : Optional<User>
+
+DiscoveryController -> DiscoveryService : findNextProfile(viewerId)
+DiscoveryService -> UserRepository : findNextDiscoverableProfile(viewerId)
+UserRepository -> MySQL : SELECT next active user not in current_swipes
+PostgreSQL --> UserRepository : next profile / no row
+UserRepository --> DiscoveryService : Optional<User>
+DiscoveryService --> DiscoveryController : Optional<User>
+DiscoveryController --> DiscoverPage : Render "discover" with viewer + profile
+DiscoverPage --> User : Next profile, no-more-profiles, and flash message
+
+... Persistence failure path ...
+SwipeRepository -[#red,dashed]-> GlobalExceptionHandler : DataAccessException may propagate
+MatchRepository -[#red,dashed]-> GlobalExceptionHandler : DataAccessException may propagate
+UserRepository -[#red,dashed]-> GlobalExceptionHandler : DataAccessException may propagate
+GlobalExceptionHandler --> User : HTTP 503 or 500 + error/database-error.html
+
+note over SwipeService, PostgreSQL
+  Spring transaction rollback prevents a partial write when
+  current_swipes, swipe_history, or match persistence fails.
+end note
+
+@enduml

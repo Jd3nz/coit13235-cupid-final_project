@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Database Error | Cupid Matching</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+
+        main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .error-card {
+            width: 100%;
+            max-width: 560px;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow:
+                0 14px 35px rgba(0, 0, 0, 0.09);
+            text-align: center;
+        }
+
+        .error-icon {
+            margin-bottom: 18px;
+            font-size: 55px;
+        }
+
+        h1 {
+            margin: 0 0 14px;
+        }
+
+        p {
+            margin: 0;
+            color: #667085;
+            line-height: 1.6;
+        }
+
+        .home-button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: #18202a;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .home-button:hover {
+            background: #344054;
+        }
+    </style>
+</head>
+
+<body>
+<main>
+    <section class="error-card">
+        <div class="error-icon">⚠️</div>
+
+        <h1 th:text="${errorTitle}">
+            Unable to complete the request
+        </h1>
+
+        <p th:text="${errorMessage}">
+            A temporary database problem occurred.
+        </p>
+
+        <a class="home-button" th:href="@{/}">
+            Return to Cupid
+        </a>
+    </section>
+</main>
+</body>
+</html>

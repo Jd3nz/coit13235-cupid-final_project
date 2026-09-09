@@ -1,0 +1,269 @@
+@startuml
+
+title Cupid Matching Component — UML Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+hide empty members
+
+package "com.cupid.matching" {
+  class CupidMatchingApplication <<SpringBootApplication>> {
+    + {static} main(args : String[]) : void
+  }
+}
+
+package "com.cupid.matching.config" {
+  class MatchingProperties <<ConfigurationProperties>> {
+    - swipeEncouragementEnabled : boolean
+    + isSwipeEncouragementEnabled() : boolean
+    + setSwipeEncouragementEnabled(value : boolean) : void
+  }
+}
+
+package "com.cupid.matching.controller" {
+  class HomeController <<Controller>> {
+    - matchingProperties : MatchingProperties
+    - userRepository : UserRepository
+    + home(model : Model) : String
+  }
+
+  class DiscoveryController <<Controller>> {
+    - discoveryService : DiscoveryService
+    + discover(userId : Long, model : Model) : String
+  }
+
+  class SwipeController <<Controller>> {
+    - swipeService : SwipeService
++ recordSwipe(request : SwipeRequest, bindingResult : BindingResult, redirectAttributes : RedirectAttributes) : String
+    - redirectAfterSwipe(request : SwipeRequest) : String
+  }
+
+  class MatchController <<Controller>> {
+    - discoveryService : DiscoveryService
+    - matchService : MatchService
+    + matches(userId : Long, model : Model) : String
+  }
+
+  class SwipeHistoryController <<Controller>> {
+    - discoveryService : DiscoveryService
+    - swipeHistoryService : SwipeHistoryService
+    + history(userId : Long, model : Model) : String
+  }
+}
+
+package "com.cupid.matching.service" {
+  class DiscoveryService <<Service>> {
+    - userRepository : UserRepository
+    + findViewer(viewerId : Long) : Optional<User>
+    + findNextProfile(viewerId : Long) : Optional<User>
+  }
+
+  class SwipeService <<Service>> {
+    - userRepository : UserRepository
+    - swipeRepository : SwipeRepository
+    - matchRepository : MatchRepository
+    + recordSwipe(request : SwipeRequest) : SwipeResult
+    - validateRequest(request : SwipeRequest) : void
+  }
+
+  class MatchService <<Service>> {
+    - matchRepository : MatchRepository
+    + findActiveMatches(userId : Long) : List<MatchSummary>
+  }
+
+  class SwipeHistoryService <<Service>> {
+    - swipeHistoryRepository : SwipeHistoryRepository
+    + findHistory(userId : Long) : List<SwipeHistorySummary>
+  }
+}
+
+package "com.cupid.matching.repository" {
+  class UserRepository <<Repository>> {
+    - jdbcTemplate : JdbcTemplate
+    - userRowMapper : RowMapper<User>
+    + findAllActive() : List<User>
+    + findById(id : Long) : Optional<User>
+    + findNextDiscoverableProfile(viewerId : Long) : Optional<User>
+    + lockUserPair(firstUserId : Long, secondUserId : Long) : void
+  }
+
+  class SwipeRepository <<Repository>> {
+    - jdbcTemplate : JdbcTemplate
++ saveCurrentSwipe(swiperId : Long, targetUserId : Long, decision : SwipeDecision) : void
++ saveSwipeHistory(swiperId : Long, targetUserId : Long, decision : SwipeDecision) : void
+  }
+
+  class MatchRepository <<Repository>> {
+    - jdbcTemplate : JdbcTemplate
+    - matchSummaryRowMapper : RowMapper<MatchSummary>
+    + hasReciprocalLike(viewerId : Long, targetUserId : Long) : boolean
+    + createMatch(firstUserId : Long, secondUserId : Long) : void
+    + findActiveMatchesForUser(userId : Long) : List<MatchSummary>
+  }
+
+  class SwipeHistoryRepository <<Repository>> {
+    - jdbcTemplate : JdbcTemplate
+    - historyRowMapper : RowMapper<SwipeHistorySummary>
+    + findHistoryByUserId(userId : Long) : List<SwipeHistorySummary>
+  }
+}
+
+package "com.cupid.matching.dto" {
+  class SwipeRequest <<validated DTO>> {
+    - viewerId : Long
+    - targetUserId : Long
+    - decision : SwipeDecision
+    + SwipeRequest()
++ SwipeRequest(viewerId : Long, targetUserId : Long, decision : SwipeDecision)
+    + getViewerId() : Long
+    + setViewerId(viewerId : Long) : void
+    + getTargetUserId() : Long
+    + setTargetUserId(targetUserId : Long) : void
+    + getDecision() : SwipeDecision
+    + setDecision(decision : SwipeDecision) : void
+  }
+
+  class SwipeResult <<record>> {
+    + matched : boolean
+    + {static} recorded() : SwipeResult
+    + {static} matchCreated() : SwipeResult
+  }
+
+  class MatchSummary <<record>> {
+    + matchId : Long
+    + matchedUserId : Long
+    + displayName : String
+    + age : int
+    + bio : String
+    + matchedAt : OffsetDateTime
+    + status : MatchStatus
+  }
+
+  class SwipeHistorySummary <<record>> {
+    + historyId : Long
+    + targetUserId : Long
+    + displayName : String
+    + age : int
+    + bio : String
+    + decision : SwipeDecision
+    + swipedAt : OffsetDateTime
+  }
+}
+
+package "com.cupid.matching.model" {
+  class User {
+    - id : Long
+    - displayName : String
+    - age : int
+    - bio : String
+    - active : boolean
+    - createdAt : OffsetDateTime
+    + getId() : Long
+    + getDisplayName() : String
+    + getAge() : int
+    + getBio() : String
+    + isActive() : boolean
+    + getCreatedAt() : OffsetDateTime
+  }
+
+  enum SwipeDecision {
+    LIKE
+    DISLIKE
+  }
+
+  enum MatchStatus {
+    ACTIVE
+    UNMATCHED
+  }
+}
+
+package "com.cupid.matching.exception" {
+  class InvalidSwipeException <<RuntimeException>> {
+    + InvalidSwipeException(message : String)
+  }
+
+  class GlobalExceptionHandler <<ControllerAdvice>> {
++ handleQueryTimeout(exception : QueryTimeoutException, model : Model) : String
++ handleConnectionFailure(exception : CannotGetJdbcConnectionException, model : Model) : String
++ handleOtherDatabaseFailure(exception : DataAccessException, model : Model) : String
+  }
+}
+
+package "Spring Framework" {
+  class JdbcTemplate <<framework>>
+  class "RowMapper<T>" as RowMapperT <<framework>>
+  class QueryTimeoutException <<framework>>
+  class CannotGetJdbcConnectionException <<framework>>
+  class DataAccessException <<framework>>
+}
+
+CupidMatchingApplication ..> MatchingProperties : enables
+
+HomeController --> MatchingProperties
+HomeController --> UserRepository
+DiscoveryController --> DiscoveryService
+SwipeController --> SwipeService
+SwipeController ..> SwipeRequest : binds and validates
+SwipeController ..> SwipeResult : reads
+SwipeController ..> SwipeDecision : compares
+SwipeController ..> InvalidSwipeException : catches
+MatchController --> DiscoveryService
+MatchController --> MatchService
+SwipeHistoryController --> DiscoveryService
+SwipeHistoryController --> SwipeHistoryService
+
+DiscoveryService --> UserRepository
+DiscoveryService ..> User
+SwipeService --> UserRepository
+SwipeService --> SwipeRepository
+SwipeService --> MatchRepository
+SwipeService ..> SwipeRequest
+SwipeService ..> SwipeResult
+SwipeService ..> SwipeDecision
+SwipeService ..> User
+SwipeService ..> InvalidSwipeException : throws
+MatchService --> MatchRepository
+MatchService ..> MatchSummary
+SwipeHistoryService --> SwipeHistoryRepository
+SwipeHistoryService ..> SwipeHistorySummary
+
+UserRepository --> JdbcTemplate
+UserRepository --> RowMapperT
+UserRepository ..> User
+SwipeRepository --> JdbcTemplate
+SwipeRepository ..> SwipeDecision
+MatchRepository --> JdbcTemplate
+MatchRepository --> RowMapperT
+MatchRepository ..> MatchSummary
+MatchRepository ..> MatchStatus
+SwipeHistoryRepository --> JdbcTemplate
+SwipeHistoryRepository --> RowMapperT
+SwipeHistoryRepository ..> SwipeHistorySummary
+SwipeHistoryRepository ..> SwipeDecision
+
+SwipeRequest --> SwipeDecision
+MatchSummary --> MatchStatus
+SwipeHistorySummary --> SwipeDecision
+
+GlobalExceptionHandler ..> QueryTimeoutException : handles
+GlobalExceptionHandler ..> CannotGetJdbcConnectionException : handles
+GlobalExceptionHandler ..> DataAccessException : handles
+
+note right of SwipeService
+  recordSwipe() is annotated @Transactional.
+  It validates users, locks the pair, stores the
+  current swipe and history, then checks for a
+  reciprocal LIKE and creates/reactivates a match.
+end note
+
+note bottom of SwipeRequest
+  viewerId and targetUserId:
+  @NotNull + @Positive
+
+  decision:
+  @NotNull
+end note
+
+@enduml

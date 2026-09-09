@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Cupid Matching</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #eef2ff;
+            font-weight: 700;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px
+                rgba(0, 0, 0, 0.07);
+        }
+
+        .user-card h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .age {
+            color: #687384;
+            font-weight: 700;
+        }
+
+        .bio {
+            min-height: 48px;
+            line-height: 1.5;
+        }
+
+        .active-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .continue-button {
+            display: block;
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #18202a;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .continue-button:hover {
+            background: #303a47;
+        }
+
+        .user-actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .user-actions .continue-button {
+            margin-top: 0;
+        }
+
+        .matches-button {
+            display: block;
+            padding: 12px 16px;
+            border: 1px solid #18202a;
+            border-radius: 10px;
+            color: #18202a;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .matches-button:hover {
+            background: #f2f4f7;
+        }
+
+        .history-button {
+            display: block;
+            padding: 12px 16px;
+            border: 1px solid #667085;
+            border-radius: 10px;
+            color: #344054;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .history-button:hover {
+            background: #f2f4f7;
+        }
+    </style>
+</head>
+
+<body>
+<main>
+    <header class="page-header">
+        <h1>Cupid Matching Component</h1>
+
+        <p>
+            Select a user who will use the matching component.
+        </p>
+
+        <div class="status">
+            Swipe encouragement:
+            <span
+                th:text="${
+                    swipeEncouragementEnabled
+                    ? 'Enabled'
+                    : 'Disabled'
+                }"
+            >
+                Disabled
+            </span>
+        </div>
+    </header>
+
+    <section
+        class="user-grid"
+        th:unless="${#lists.isEmpty(users)}"
+    >
+        <article
+            class="user-card"
+            th:each="user : ${users}"
+        >
+            <h2 th:text="${user.displayName}">
+                User name
+            </h2>
+
+            <p
+                class="age"
+                th:text="|${user.age} years old|"
+            >
+                24 years old
+            </p>
+
+            <p
+                class="bio"
+                th:text="${user.bio}"
+            >
+                User biography
+            </p>
+
+            <span class="active-badge">
+                Active profile
+            </span>
+            <div class="user-actions">
+
+            <a
+                class="continue-button"
+                th:href="@{/discover(userId=${user.id})}"
+                th:text="|Continue as ${user.displayName}|"
+            >
+                Continue
+            </a>
+
+            <a
+                class="matches-button"
+                th:href="@{/matches(userId=${user.id})}"
+            >
+                My Matches
+            </a>
+            <a
+                class="history-button"
+                th:href="@{/history(userId=${user.id})}"
+            >
+                Swipe History
+            </a>
+</div>
+
+        </article>
+    </section>
+
+    <section
+        class="empty-state"
+        th:if="${#lists.isEmpty(users)}"
+    >
+        <p>No active users were found.</p>
+    </section>
+</main>
+</body>
+</html>

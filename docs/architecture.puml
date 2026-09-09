@@ -1,0 +1,127 @@
+@startuml
+
+title Cupid Matching Component — Verified Runtime Architecture
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+
+actor User
+
+node "Web Browser" as Browser {
+  component "Thymeleaf Pages" as Pages {
+    [index.html]
+    [discover.html]
+    [matches.html]
+    [history.html]
+    [error/database-error.html]
+  }
+}
+
+node "Spring Boot 4.1.0 Application\nJava 17 · Port 8080" as App {
+  package "Spring MVC / Web Layer" {
+    [HomeController\nGET /] as HomeController
+    [DiscoveryController\nGET /discover] as DiscoveryController
+    [SwipeController\nPOST /swipes] as SwipeController
+    [MatchController\nGET /matches] as MatchController
+    [SwipeHistoryController\nGET /history] as SwipeHistoryController
+    [GlobalExceptionHandler\n@ControllerAdvice] as ExceptionHandler
+    [Jakarta Bean Validation] as Validation
+    [Thymeleaf View Resolver] as Thymeleaf
+  }
+
+  package "Business Layer" {
+    [DiscoveryService] as DiscoveryService
+    [SwipeService\n@Transactional] as SwipeService
+    [MatchService] as MatchService
+    [SwipeHistoryService] as SwipeHistoryService
+  }
+
+  package "Persistence Layer" {
+    [UserRepository] as UserRepository
+    [SwipeRepository] as SwipeRepository
+    [MatchRepository] as MatchRepository
+    [SwipeHistoryRepository] as SwipeHistoryRepository
+    [JdbcTemplate] as JdbcTemplate
+    [HikariCP Connection Pool\nmax 20 · connection timeout 5 s] as Hikari
+  }
+
+  package "Configuration" {
+    [MatchingProperties\ncupid.matching.swipe-encouragement-enabled] as MatchingProperties
+    [JPA query timeout\n5 seconds] as QueryTimeout
+  }
+}
+
+node "Local MySQL" as MySQL {
+  database "MySQL\ncupid_matching · localhost:3306" as DevDB
+  database "MySQL\ncupid_matching_test · localhost:3306" as TestDB
+}
+
+node "Test Tooling" as TestTools {
+  component "JUnit 5 + Mockito + MockMvc" as AutomatedTests
+  component "Apache JMeter 5.6.3\n100 users / 1,000 GET / requests" as JMeter
+}
+
+User --> Browser : navigate, submit forms
+Browser --> HomeController : GET /
+Browser --> DiscoveryController : GET /discover?userId
+Browser --> SwipeController : POST /swipes
+Browser --> MatchController : GET /matches?userId
+Browser --> SwipeHistoryController : GET /history?userId
+
+SwipeController --> Validation : @Valid SwipeRequest
+HomeController --> MatchingProperties
+HomeController --> UserRepository
+DiscoveryController --> DiscoveryService
+SwipeController --> SwipeService
+MatchController --> DiscoveryService
+MatchController --> MatchService
+SwipeHistoryController --> DiscoveryService
+SwipeHistoryController --> SwipeHistoryService
+
+DiscoveryService --> UserRepository
+SwipeService --> UserRepository
+SwipeService --> SwipeRepository
+SwipeService --> MatchRepository
+MatchService --> MatchRepository
+SwipeHistoryService --> SwipeHistoryRepository
+
+UserRepository --> JdbcTemplate
+SwipeRepository --> JdbcTemplate
+MatchRepository --> JdbcTemplate
+SwipeHistoryRepository --> JdbcTemplate
+JdbcTemplate --> Hikari
+Hikari --> DevDB : JDBC / SQL
+QueryTimeout ..> JdbcTemplate : spring.jdbc.template.query-timeout=5s
+
+HomeController --> Thymeleaf : model + "index"
+DiscoveryController --> Thymeleaf : model + "discover"
+MatchController --> Thymeleaf : model + "matches"
+SwipeHistoryController --> Thymeleaf : model + "history"
+ExceptionHandler --> Thymeleaf : model + "error/database-error"
+Thymeleaf --> Pages : server-side rendering
+
+UserRepository ..> ExceptionHandler : DataAccessException propagates
+SwipeRepository ..> ExceptionHandler : DataAccessException propagates
+MatchRepository ..> ExceptionHandler : DataAccessException propagates
+SwipeHistoryRepository ..> ExceptionHandler : DataAccessException propagates
+
+AutomatedTests --> App : unit, MVC, context, integration tests
+AutomatedTests ..> TestDB : intended integration target after test-resource path correction
+JMeter --> HomeController : HTTP GET /
+
+note right of Pages
+  Frontend is server-rendered HTML/CSS with Thymeleaf.
+  There is no Angular, React, Vue, or separate REST frontend.
+end note
+
+note bottom of SwipeRepository
+  Writes current_swipes and swipe_history.
+end note
+
+note bottom of SwipeHistoryRepository
+  Reads swipe_history for the history page only.
+end note
+
+@enduml

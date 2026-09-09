@@ -1,0 +1,16 @@
+target/
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+*.log
+.env
+# JMeter generated results and reports
+performance/results/*
+!performance/results/.gitkeep
+
+performance/reports/*
+!performance/reports/.gitkeep

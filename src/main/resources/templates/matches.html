@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>My Matches | Cupid Matching</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+
+        .top-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .navigation-links {
+            display: flex;
+            gap: 18px;
+        }
+
+        .navigation-link {
+            color: #344054;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .navigation-link:hover {
+            text-decoration: underline;
+        }
+
+        .viewer {
+            color: #667085;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            margin-top: 0;
+            color: #667085;
+        }
+
+        .match-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .match-card {
+            background: white;
+            overflow: hidden;
+            border-radius: 18px;
+            box-shadow:
+                0 10px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .profile-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 180px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #fce7f3,
+                    #e0e7ff
+                );
+            font-size: 65px;
+        }
+
+        .match-content {
+            padding: 22px;
+        }
+
+        .match-content h2 {
+            margin: 0 0 8px;
+        }
+
+        .age {
+            color: #667085;
+            font-weight: 700;
+        }
+
+        .bio {
+            min-height: 48px;
+            line-height: 1.5;
+        }
+
+        .match-date {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #eaecf0;
+            color: #667085;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            padding: 45px 30px;
+            background: white;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow:
+                0 10px 28px rgba(0, 0, 0, 0.06);
+        }
+
+        .discover-button {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: #18202a;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+<main>
+    <nav class="top-navigation">
+        <div class="navigation-links">
+            <a
+                class="navigation-link"
+                th:href="@{/history(userId=${viewer.id})}"
+            >
+                Swipe History
+            </a>
+            <a
+                class="navigation-link"
+                th:href="@{/}"
+            >
+                ← Change user
+            </a>
+
+            <a
+                class="navigation-link"
+                th:href="@{/discover(userId=${viewer.id})}"
+            >
+                Discover
+            </a>
+        </div>
+
+        <span
+            class="viewer"
+            th:text="|Using Cupid as ${viewer.displayName}|"
+        >
+            Using Cupid as Alex
+        </span>
+    </nav>
+
+    <header class="page-header">
+        <h1>My Matches</h1>
+
+        <p>
+            People who liked you after you liked them.
+        </p>
+    </header>
+
+    <section
+        class="match-grid"
+        th:unless="${#lists.isEmpty(matches)}"
+    >
+        <article
+            class="match-card"
+            th:each="match : ${matches}"
+        >
+            <div class="profile-image">
+                💕
+            </div>
+
+            <div class="match-content">
+                <h2 th:text="${match.displayName}">
+                    User name
+                </h2>
+
+                <p
+                    class="age"
+                    th:text="|${match.age} years old|"
+                >
+                    24 years old
+                </p>
+
+                <p
+                    class="bio"
+                    th:text="${match.bio}"
+                >
+                    Profile biography
+                </p>
+
+                <span
+                    class="status-badge"
+                    th:text="${match.status}"
+                >
+                    ACTIVE
+                </span>
+
+                <p
+                    class="match-date"
+                    th:text="|Matched: ${
+                        #temporals.format(
+                            match.matchedAt,
+                            'dd MMM yyyy, hh:mm a'
+                        )
+                    }|"
+                >
+                    Matched: 02 Aug 2026
+                </p>
+            </div>
+        </article>
+    </section>
+
+    <section
+        class="empty-state"
+        th:if="${#lists.isEmpty(matches)}"
+    >
+        <h2>No matches yet</h2>
+
+        <p>
+            Mutual likes will appear here.
+        </p>
+
+        <a
+            class="discover-button"
+            th:href="@{/discover(userId=${viewer.id})}"
+        >
+            Discover profiles
+        </a>
+    </section>
+</main>
+</body>
+</html>
