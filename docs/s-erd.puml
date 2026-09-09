@@ -1,0 +1,138 @@
+@startuml
+title Cupid System - Entity Relationship Diagram (Whole System)
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam entity {
+  BackgroundColor white
+  BorderColor #344054
+}
+
+' PROFILE COMPONENT
+entity "users" as users {
+  * id : BIGINT <<PK>>
+  --
+  * display_name : VARCHAR(100)
+  * age : INTEGER (18-120)
+  bio : VARCHAR(500)
+  * active : BOOLEAN = TRUE
+  * created_at : TIMESTAMP
+  --
+  Owned by Profile component
+  active=FALSE for soft delete (FR_Profile_Keep_Ethics)
+}
+
+entity "profile_pictures" as pics {
+  * id : BIGINT <<PK>>
+  --
+  * user_id : BIGINT <<FK users.id>>
+  * file_path : VARCHAR(255)
+  * content_type : VARCHAR(50)
+  * file_size : BIGINT
+  * uploaded_at : TIMESTAMP
+  --
+  Owned by Profile (Tanzim)
+  Cascade delete with user
+}
+
+' MATCHING COMPONENT
+entity "current_swipes" as swipes {
+  * id : BIGINT <<PK>>
+  --
+  * swiper_id : BIGINT <<FK users.id>>
+  * target_user_id : BIGINT <<FK users.id>>
+  * decision : VARCHAR(10) (LIKE/DISLIKE)
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+  --
+  UNIQUE(swiper_id, target_user_id)
+  Owned by Matching
+}
+
+entity "swipe_history" as history {
+  * id : BIGINT <<PK>>
+  --
+  * swiper_id : BIGINT <<FK users.id>>
+  * target_user_id : BIGINT <<FK users.id>>
+  * decision : VARCHAR(10)
+  * swiped_at : TIMESTAMP
+  --
+  Append-only log (FR_Swipe_History)
+  Owned by Matching
+}
+
+entity "matches" as matches {
+  * id : BIGINT <<PK>>
+  --
+  * user_one_id : BIGINT <<FK users.id>>
+  * user_two_id : BIGINT <<FK users.id>>
+  * matched_at : TIMESTAMP
+  * status : VARCHAR(20) (ACTIVE/UNMATCHED)
+  --
+  UNIQUE(user_one_id, user_two_id)
+  Owned by Matching
+}
+
+' MESSAGING COMPONENT
+entity "message_threads" as threads {
+  * id : BIGINT <<PK>>
+  --
+  * match_id : BIGINT <<FK matches.id>>
+  * created_at : TIMESTAMP
+  last_message_at : TIMESTAMP
+  --
+  One thread per match
+  Owned by Messaging
+}
+
+entity "messages" as messages {
+  * id : BIGINT <<PK>>
+  --
+  * thread_id : BIGINT <<FK message_threads.id>>
+  * sender_id : BIGINT <<FK users.id>>
+  * body : VARCHAR(2000)
+  * sent_at : TIMESTAMP
+  read_at : TIMESTAMP
+  --
+  Owned by Messaging
+}
+
+' SHARED
+entity "settings" as settings {
+  * key : VARCHAR(100) <<PK>>
+  --
+  * value : VARCHAR(255)
+  * updated_at : TIMESTAMP
+  --
+  Holds 3 ethics toggles:
+  - profile.account-deletion-enabled
+  - matching.swipe-encouragement-enabled
+  - messaging.message-coercion-enabled
+  Owned by Shared (Tanzim)
+}
+
+' RELATIONSHIPS
+users ||--o{ pics
+users ||--o{ swipes : swiper_id
+users ||--o{ swipes : target_user_id
+users ||--o{ history : swiper_id
+users ||--o{ history : target_user_id
+users ||--o{ matches : user_one_id
+users ||--o{ matches : user_two_id
+matches ||--|| threads : one-to-one
+threads ||--o{ messages
+users ||--o{ messages : sender_id
+
+note top of users
+  Central identity table.
+  Shared between Profile, Matching, Messaging.
+  Profile owns writes.
+end note
+
+note bottom of threads
+  Messaging depends on Matching:
+  a thread cannot exist without an active match.
+end note
+
+@enduml

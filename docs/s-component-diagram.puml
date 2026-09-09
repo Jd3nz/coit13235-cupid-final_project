@@ -1,0 +1,62 @@
+@startuml
+title Cupid System - Component Diagram
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+
+actor User
+
+package "Cupid App" {
+
+  [Web UI\n(Thymeleaf)] as UI
+
+  component "Profile" as ProfileComp {
+    [Profile Lifecycle\n(Allaine)]
+    [Profile Pictures\n(Tanzim)]
+  }
+
+  component "Matching\n(Jay)" as MatchingComp
+  component "Messaging\n(Hung)" as MessagingComp
+
+  component "Shared\n(Tanzim)" as SharedComp {
+    [Home]
+    [Settings / Preferences UI]
+    [Global Exception Handler]
+  }
+
+  database "MySQL" as DB
+}
+
+User --> UI
+
+UI --> ProfileComp
+UI --> MatchingComp
+UI --> MessagingComp
+UI --> SharedComp
+
+ProfileComp --> DB : users, profile_pictures
+MatchingComp --> DB : current_swipes, swipe_history, matches
+MessagingComp --> DB : message_threads, messages
+SharedComp --> DB : settings
+
+MatchingComp ..> ProfileComp : reads users
+MessagingComp ..> MatchingComp : reads matches\n(no match = no messaging)
+SharedComp ..> ProfileComp : controls ethics toggle
+SharedComp ..> MatchingComp : controls ethics toggle
+SharedComp ..> MessagingComp : controls ethics toggle
+
+note top of SharedComp
+  Settings UI is the single place
+  where all 3 ethics toggles can be
+  disabled - satisfies the "single
+  setting" requirement in each FR
+end note
+
+note bottom of MessagingComp
+  Messaging is gated by Matching:
+  users can only message someone
+  they have matched with
+end note
+
+@enduml
