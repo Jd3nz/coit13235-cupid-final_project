@@ -1,4 +1,4 @@
-package com.cupid.matching;
+package com.cupid;
 
 import com.cupid.matching.config.MatchingProperties;
 import com.cupid.profile.config.ProfileSettingsProperties;
@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 // Scan each team-owned component beneath the shared com.cupid namespace.
-@SpringBootApplication(scanBasePackages = "com.cupid")
+@SpringBootApplication
 @EnableConfigurationProperties({
         MatchingProperties.class,
         ProfileSettingsProperties.class
@@ -18,3 +18,4 @@ public class CupidMatchingApplication {
         SpringApplication.run(CupidMatchingApplication.class, args);
     }
 }
+
