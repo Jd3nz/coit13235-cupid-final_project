@@ -74,4 +74,28 @@ public class User {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    /**
+     * FR_Profile: Changes the information that a person has chosen to show
+     * on their Cupid profile. Validation and input sanitisation happen in
+     * ProfileService before this domain operation is called.
+     */
+    public void updateProfile(
+            String displayName,
+            int age,
+            String bio
+    ) {
+        this.displayName = displayName;
+        this.age = age;
+        this.bio = bio;
+    }
+
+    /**
+     * FR_Profile_Keep_Ethics: performs a soft account deletion. Keeping the
+     * record protects swipe and match history while removing the account from
+     * all active-profile and discovery queries.
+     */
+    public void deactivate() {
+        this.active = false;
+    }
 }

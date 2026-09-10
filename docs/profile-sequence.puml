@@ -1,0 +1,54 @@
+@startuml
+
+title Cupid Profile Lifecycle - Sequence Diagram
+
+actor "Cupid user" as User
+boundary "Thymeleaf Profile UI" as UI
+control "ProfileController" as Controller
+control "ProfileService" as Service
+entity "ProfileSettingsProperties" as Settings
+database "UserRepository / users" as Repository
+
+== Create or update profile ==
+User -> UI : Submit name, age and bio
+UI -> Controller : POST /profiles or /profiles/{id}
+Controller -> Controller : Bean validation
+Controller -> Service : createProfile(form) / updateProfile(id, form)
+Service -> Service : Sanitise input and validate business rules
+Service -> Repository : save(User)
+Repository --> Service : persisted profile
+Service --> Controller : active profile
+Controller --> UI : Redirect to GET /profiles/{id}
+
+== Fetch/display profile ==
+User -> UI : View profile
+UI -> Controller : GET /profiles/{id}
+Controller -> Service : findActiveProfile(id)
+Service -> Repository : findById(id)
+Repository --> Service : profile
+Service --> Controller : active profile only
+Controller --> UI : Render profile.html
+
+== Ethical account deletion ==
+User -> UI : Confirm deactivation
+UI -> Controller : POST /profiles/{id}/deactivate
+Controller -> Service : deactivateProfile(id, confirmed)
+Service -> Settings : isAccountDeletionEnabled()
+alt setting disabled or no confirmation
+  Service --> Controller : safe rejection message
+  Controller --> UI : Display ethical safeguard message
+else setting enabled and confirmed
+  Service -> Repository : save(User active = false)
+  Repository --> Service : profile deactivated
+  Service --> Controller : success
+  Controller --> UI : Redirect to Cupid home
+end
+
+note right of Service
+  FR_Profile
+  FR_Profile_Fetch
+  FR_Profile_Keep_Ethics
+  NFR_Input_Sanitise
+end note
+
+@enduml

@@ -1,0 +1,158 @@
+:root {
+    --cupid-blush: #F2AAB7;
+    --cupid-rose: #A84C64;
+    --cupid-navy: #011027;
+    --cupid-blue: #05728E;
+    --cupid-teal: #0A94A6;
+    --cupid-cream: #fff8f9;
+    --cupid-white: #ffffff;
+    --cupid-muted: #536476;
+    --cupid-border: #efd3da;
+    --cupid-shadow: 0 16px 38px rgba(1, 16, 39, 0.10);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(242, 170, 183, 0.45), transparent 28rem),
+        radial-gradient(circle at 100% 10%, rgba(10, 148, 166, 0.16), transparent 27rem),
+        var(--cupid-cream);
+    color: var(--cupid-navy);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+h1, h2, h3 { color: var(--cupid-navy); letter-spacing: -0.02em; }
+
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 3px solid rgba(10, 148, 166, 0.45);
+    outline-offset: 3px;
+}
+
+.page-header h1 {
+    font-size: clamp(2rem, 5vw, 2.85rem);
+    margin-bottom: 8px;
+}
+
+.page-header p, .viewer, .age, .help-text, .next-step, .swipe-date, .match-date {
+    color: var(--cupid-muted);
+}
+
+.status, .active-badge, .status-badge, .like-badge {
+    background: rgba(10, 148, 166, 0.13);
+    color: var(--cupid-blue);
+    border: 1px solid rgba(10, 148, 166, 0.20);
+}
+
+.user-card, .match-card, .history-card, .profile-card, .card, .empty-state, .error-card, .danger-zone {
+    border: 1px solid var(--cupid-border);
+    box-shadow: var(--cupid-shadow);
+}
+
+.user-card, .match-card, .history-card, .profile-card, .card, .empty-state, .error-card {
+    background: var(--cupid-white);
+}
+
+.user-card, .match-card, .history-card, .profile-card, .card {
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.user-card:hover, .match-card:hover, .history-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 42px rgba(1, 16, 39, 0.14);
+}
+
+.continue-button, .discover-button, .submit-button, .home-button {
+    background: var(--cupid-navy);
+    box-shadow: 0 7px 16px rgba(1, 16, 39, 0.18);
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.continue-button:hover, .discover-button:hover, .submit-button:hover, .home-button:hover {
+    background: var(--cupid-blue);
+    color: var(--cupid-white);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(5, 114, 142, 0.25);
+}
+
+.create-profile-link, .edit-link {
+    background: var(--cupid-rose);
+    color: var(--cupid-white);
+    box-shadow: 0 7px 16px rgba(168, 76, 100, 0.22);
+    transition: background 160ms ease, transform 160ms ease;
+}
+
+.create-profile-link:hover, .edit-link:hover {
+    background: var(--cupid-blue);
+    color: var(--cupid-white);
+    transform: translateY(-1px);
+}
+
+.profile-button {
+    border-color: var(--cupid-rose);
+    color: var(--cupid-rose);
+}
+
+.profile-button:hover { background: rgba(242, 170, 183, 0.22); }
+
+.matches-button, .history-button {
+    border-color: var(--cupid-blue);
+    color: var(--cupid-navy);
+    background: var(--cupid-white);
+}
+
+.matches-button:hover, .history-button:hover { background: rgba(10, 148, 166, 0.10); }
+
+.back-link, .navigation-link { color: var(--cupid-blue); }
+.back-link:hover, .navigation-link:hover { color: var(--cupid-rose); }
+
+.profile-image, .avatar {
+    background: linear-gradient(135deg, var(--cupid-blush), #d9f5f7) !important;
+}
+
+.like-button {
+    background: var(--cupid-teal);
+    color: var(--cupid-white);
+}
+
+.dislike-button, .dislike-badge {
+    background: rgba(242, 170, 183, 0.35);
+    color: var(--cupid-rose);
+}
+
+.match-message {
+    background: rgba(242, 170, 183, 0.28);
+    border-color: var(--cupid-blush);
+    color: var(--cupid-rose);
+}
+
+.success-message {
+    background: rgba(10, 148, 166, 0.13);
+    color: var(--cupid-blue);
+}
+
+.error-message, .danger-zone {
+    background: #fffafa;
+    border-color: var(--cupid-blush);
+    color: var(--cupid-rose);
+}
+
+.danger-zone h2, .field-error { color: var(--cupid-rose); }
+.ethics-note { background: rgba(242, 170, 183, 0.25); color: var(--cupid-navy); }
+
+input, textarea {
+    border-color: #b8c3cc;
+    color: var(--cupid-navy);
+}
+
+input:focus, textarea:focus {
+    border-color: var(--cupid-teal);
+    box-shadow: 0 0 0 3px rgba(10, 148, 166, 0.14);
+}
+
+@media (max-width: 700px) {
+    main { margin-top: 24px !important; }
+    .top-navigation { align-items: flex-start; flex-direction: column; }
+    .navigation-links { gap: 12px; }
+}
