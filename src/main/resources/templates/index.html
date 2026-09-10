@@ -257,6 +257,12 @@
                 My Matches
             </a>
             <a
+                class="matches-button"
+                th:href="@{/messages(userId=${user.id})}"
+            >
+                Messages
+            </a>
+            <a
                 class="history-button"
                 th:href="@{/history(userId=${user.id})}"
             >
