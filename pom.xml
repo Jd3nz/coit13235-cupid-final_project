@@ -19,6 +19,7 @@
 
     <properties>
         <java.version>17</java.version>
+        <start-class>com.cupid.CupidApplication</start-class>
     </properties>
 
     <dependencies>
