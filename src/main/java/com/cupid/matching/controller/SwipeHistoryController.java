@@ -27,17 +27,15 @@ public class SwipeHistoryController {
     /**
      * Displays the complete swipe history for the selected user.
      *
-     * Supports:
-     * FR_Swipe_History
-     * FR_Web_UI
+     * Supports: FR_Swipe_History FR_Web_UI
      */
     @GetMapping("/history")
     public String history(
             @RequestParam Long userId,
             Model model
     ) {
-        Optional<User> viewer =
-                discoveryService.findViewer(userId);
+        Optional<User> viewer
+                = discoveryService.findViewer(userId);
 
         if (viewer.isEmpty()) {
             return "redirect:/";

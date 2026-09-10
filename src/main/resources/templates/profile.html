@@ -84,6 +84,45 @@
             background: #fff7ed;
             color: #9a3412;
         }
+        .gallery { display: grid; gap: 12px; }
+        .primary-picture img {
+            width: 100%;
+            border-radius: 14px;
+            object-fit: cover;
+            max-height: 380px;
+        }
+        .thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+        }
+        .thumb img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .thumb-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .thumb-actions button {
+            font-size: 12px;
+            padding: 4px;
+            cursor: pointer;
+        }
+        .thumb-actions button.danger { color: #b42318; }
+        .upload-button {
+            padding: 10px 14px;
+            border: 0;
+            border-radius: 8px;
+            background: #344054;
+            color: white;
+            cursor: pointer;
+        }
+        .hint { color: #667085; font-size: 13px; }
     </style>
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
 </head>
@@ -91,7 +130,7 @@
 <main>
     <nav class="top-navigation">
         <a class="back-link" th:href="@{/}">← Back to Cupid</a>
-        <a
+        
                 class="edit-link"
                 th:href="@{/profiles/{profileId}/edit(profileId=${profile.id})}"
         >
@@ -115,10 +154,61 @@
     </p>
 
     <section class="card">
-        <div class="avatar" aria-hidden="true">👤</div>
+        <div th:if="${pictures != null and !pictures.isEmpty()}" class="gallery">
+            <div class="primary-picture">
+                <img
+                    th:src="@{/profiles/{profileId}/pictures/{pictureId}
+                            (profileId=${profile.id}, pictureId=${primaryPictureId})}"
+                    alt="Profile picture"
+                >
+            </div>
+            <div class="thumbnails">
+                <div th:each="pic : ${pictures}" class="thumb">
+                    <img
+                        th:src="@{/profiles/{profileId}/pictures/{pictureId}
+                                (profileId=${profile.id}, pictureId=${pic.id})}"
+                        alt="Profile picture thumbnail"
+                    >
+                    <div class="thumb-actions">
+                        <form
+                            th:action="@{/profiles/{profileId}/pictures/{pictureId}/primary
+                                        (profileId=${profile.id}, pictureId=${pic.id})}"
+                            method="post"
+                            th:unless="${pic.primaryPicture}"
+                        >
+                            <button type="submit">Make primary</button>
+                        </form>
+                        <form
+                            th:action="@{/profiles/{profileId}/pictures/{pictureId}/delete
+                                        (profileId=${profile.id}, pictureId=${pic.id})}"
+                            method="post"
+                        >
+                            <button type="submit" class="danger">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${pictures == null or pictures.isEmpty()}"
+             class="avatar" aria-hidden="true">👤</div>
         <h1 th:text="${profile.displayName}">Profile name</h1>
         <p class="age" th:text="|${profile.age} years old|">24 years old</p>
         <p class="bio" th:text="${profile.bio}">Profile biography</p>
+    </section>
+
+    <section class="card">
+        <h2>Upload a picture</h2>
+        <form
+            th:action="@{/profiles/{profileId}/pictures(profileId=${profile.id})}"
+            method="post"
+            enctype="multipart/form-data"
+        >
+            <input type="file" name="file" accept="image/jpeg,image/png,image/webp" required>
+            <button type="submit" class="upload-button">Upload</button>
+        </form>
+        <p class="hint">
+            JPEG, PNG or WebP. Up to 5 MB per picture, six pictures per profile.
+        </p>
     </section>
 
     <section class="danger-zone">

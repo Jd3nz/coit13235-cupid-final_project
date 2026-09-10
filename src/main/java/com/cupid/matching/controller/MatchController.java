@@ -27,17 +27,15 @@ public class MatchController {
     /**
      * Displays all active matches for the selected user.
      *
-     * Supports:
-     * FR_Match
-     * FR_Web_UI
+     * Supports: FR_Match FR_Web_UI
      */
     @GetMapping("/matches")
     public String matches(
             @RequestParam Long userId,
             Model model
     ) {
-        Optional<User> viewer =
-                discoveryService.findViewer(userId);
+        Optional<User> viewer
+                = discoveryService.findViewer(userId);
 
         if (viewer.isEmpty()) {
             return "redirect:/";
