@@ -1,4 +1,4 @@
-  package com.cupid.matching.config;
+package com.cupid.matching.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
