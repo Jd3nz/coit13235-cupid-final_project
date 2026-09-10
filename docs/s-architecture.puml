@@ -118,7 +118,7 @@ TR --> DB
 note bottom of Profile
   Profile lifecycle: create, view, edit, soft-delete
   Pictures: upload validation and storage
-  Ethics: account-deletion-enabled toggle
+  Ethics: global deletion setting plus per-profile opt-in
 end note
 
 note bottom of Matching

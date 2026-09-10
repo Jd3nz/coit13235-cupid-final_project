@@ -6,7 +6,7 @@ actor "Cupid user" as User
 boundary "Thymeleaf Profile UI" as UI
 control "ProfileController" as Controller
 control "ProfileService" as Service
-entity "ProfileSettingsProperties" as Settings
+entity "ProfileSettingsProperties" as Ethics
 database "UserRepository / users" as Repository
 
 == Create or update profile ==
@@ -18,7 +18,10 @@ Service -> Service : Sanitise input and validate business rules
 Service -> Repository : save(User)
 Repository --> Service : persisted profile
 Service --> Controller : active profile
-Controller --> UI : Redirect to GET /profiles/{id}
+Controller --> UI : New profile: redirect to profile.html#photo-upload
+note right of UI
+  Updated profiles return to profile.html.
+end note
 
 == Fetch/display profile ==
 User -> UI : View profile
@@ -30,14 +33,31 @@ Service --> Controller : active profile only
 Controller --> UI : Render profile.html
 
 == Ethical account deletion ==
-User -> UI : Confirm deactivation
+User -> UI : Open Account settings
+UI -> Controller : GET /profiles/{id}/settings
+Controller -> Service : findActiveProfile(id)
+Service -> Repository : findById(id)
+Repository --> Service : active profile
+Service --> Controller : profile preference
+Controller --> UI : Render account-settings.html
+
+User -> UI : Select "Allow my account to be deactivated"
+UI -> Controller : POST /profiles/{id}/settings
+Controller -> Service : updateAccountDeactivationPreference(id, true)
+Service -> Repository : save(User accountDeactivationEnabled = true)
+Repository --> Service : preference saved
+Service --> Controller : updated profile
+Controller --> UI : Show setting enabled message
+
+User -> UI : Confirm account deletion
 UI -> Controller : POST /profiles/{id}/deactivate
-Controller -> Service : deactivateProfile(id, confirmed)
-Service -> Settings : isAccountDeletionEnabled()
-alt setting disabled or no confirmation
+Controller -> Service : deactivateProfile(id, checkbox, DELETE)
+Service -> Ethics : isAccountDeletionEnabled()
+alt global setting disabled, profile preference disabled,
+or checkbox/DELETE is missing
   Service --> Controller : safe rejection message
   Controller --> UI : Display ethical safeguard message
-else setting enabled and confirmed
+else global setting enabled, preference enabled and confirmed
   Service -> Repository : save(User active = false)
   Repository --> Service : profile deactivated
   Service --> Controller : success

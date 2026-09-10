@@ -157,21 +157,24 @@
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
 </head>
 
-<body>
+<body class="collection-page matches-page">
 <main>
     <nav class="top-navigation">
+        <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
+        </a>
         <div class="navigation-links">
-            <a
-                class="navigation-link"
-                th:href="@{/history(userId=${viewer.id})}"
-            >
-                Swipe History
-            </a>
             <a
                 class="navigation-link"
                 th:href="@{/}"
             >
-                ← Change user
+                ← Back to Cupid
+            </a>
+            <a
+                class="navigation-link"
+                th:href="@{/profiles/{profileId}(profileId=${viewer.id})}"
+            >
+                View profile
             </a>
 
             <a
@@ -179,6 +182,13 @@
                 th:href="@{/discover(userId=${viewer.id})}"
             >
                 Discover
+            </a>
+
+            <a
+                class="navigation-link"
+                th:href="@{/history(userId=${viewer.id})}"
+            >
+                Swipe History
             </a>
         </div>
 
@@ -194,7 +204,7 @@
         <h1>My Matches</h1>
 
         <p>
-            People who liked you after you liked them.
+            The people where the feeling is mutual.
         </p>
     </header>
 

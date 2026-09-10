@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Account settings | Cupid</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+        main {
+            max-width: 680px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+        .back-link {
+            color: #344054;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .card {
+            margin-top: 24px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+        .setting-option {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin: 24px 0 10px;
+            padding: 18px;
+            border: 1px solid #efd3da;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+        .setting-option input {
+            width: auto;
+            margin-top: 3px;
+        }
+        .hint, .safety-note { line-height: 1.55; }
+        .hint { color: #667085; }
+        .safety-note {
+            margin-top: 22px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #fff1f3;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .success-message { background: #dcfce7; color: #166534; }
+        .error-message { background: #fee2e2; color: #991b1b; }
+        .save-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: #18202a;
+            color: #ffffff;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/cupid.css}">
+</head>
+<body class="settings-page">
+<main>
+    <nav class="standalone-navigation" aria-label="Profile navigation">
+        <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
+        </a>
+        <a
+                class="back-link"
+                th:href="@{/profiles/{profileId}(profileId=${profile.id})}"
+        >
+            ← Back to profile
+        </a>
+    </nav>
+
+    <p
+            class="message success-message"
+            th:if="${successMessage}"
+            th:text="${successMessage}"
+    >
+        Account settings saved.
+    </p>
+    <p
+            class="message error-message"
+            th:if="${errorMessage}"
+            th:text="${errorMessage}"
+    >
+        Unable to save account settings.
+    </p>
+
+    <section class="card">
+        <h1>Account settings</h1>
+        <p class="hint">
+            Cupid makes account deletion an intentional choice. The action is
+            only available after you enable it here and complete the final
+            confirmation process later.
+        </p>
+
+        <p class="error-message" th:unless="${globalAccountDeletionEnabled}">
+            Account deletion is currently disabled for all users by Cupid's
+            ethical setting.
+        </p>
+
+        <form
+                th:action="@{/profiles/{profileId}/settings(profileId=${profile.id})}"
+                method="post"
+        >
+            <label class="setting-option" for="accountDeactivationEnabled">
+                <input
+                        id="accountDeactivationEnabled"
+                        type="checkbox"
+                        name="accountDeactivationEnabled"
+                        value="true"
+                        th:checked="${profile.accountDeactivationEnabled}"
+                        th:disabled="${!globalAccountDeletionEnabled}"
+                >
+                <span>Allow my account to be deleted</span>
+            </label>
+
+            <p class="hint">
+                Turning this on does not delete your account. It only makes the
+                final confirmation process available on your profile page.
+            </p>
+
+            <button
+                    class="save-button"
+                    type="submit"
+                    th:disabled="${!globalAccountDeletionEnabled}"
+            >Save account settings</button>
+        </form>
+
+        <p class="safety-note">
+            If you later delete your account, Cupid removes your profile
+            from discovery but retains swipe and match records for data
+            integrity.
+        </p>
+    </section>
+</main>
+</body>
+</html>

@@ -28,6 +28,8 @@ public class User {
     private String bio;
     @Column(nullable = false)
     private boolean active;
+    @Column(name = "account_deactivation_enabled", nullable = false)
+    private boolean accountDeactivationEnabled;
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 
@@ -71,6 +73,14 @@ public class User {
         return active;
     }
 
+    /**
+     * FR_Profile_Keep_Ethics: this per-profile preference starts false so
+     * deactivation takes an intentional user-controlled extra step.
+     */
+    public boolean isAccountDeactivationEnabled() {
+        return accountDeactivationEnabled;
+    }
+
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
@@ -97,5 +107,12 @@ public class User {
      */
     public void deactivate() {
         this.active = false;
+    }
+
+    /**
+     * Records the account owner's preference from the Account Settings page.
+     */
+    public void updateAccountDeactivationPreference(boolean enabled) {
+        this.accountDeactivationEnabled = enabled;
     }
 }
