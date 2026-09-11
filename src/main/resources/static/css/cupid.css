@@ -156,3 +156,935 @@ input:focus, textarea:focus {
     .top-navigation { align-items: flex-start; flex-direction: column; }
     .navigation-links { gap: 12px; }
 }
+
+/* Shared responsive page layout. Individual screens provide the content; this
+   layer keeps their spacing, navigation and cards consistent. */
+main {
+    width: min(calc(100% - 48px), 1180px);
+    max-width: 1180px;
+    margin: clamp(28px, 5vw, 64px) auto !important;
+    padding: 0 !important;
+}
+
+main > .card,
+main > .danger-zone,
+main > .error-card,
+main > .empty-state {
+    width: min(100%, 820px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+main > .message { max-width: 1040px; margin-left: auto; margin-right: auto; }
+
+.top-navigation {
+    align-items: center;
+    gap: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--cupid-border);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow: 0 10px 28px rgba(1, 16, 39, 0.06);
+}
+
+.navigation-links,
+.profile-actions {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.navigation-link,
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid rgba(5, 114, 142, 0.20);
+    border-radius: 999px;
+    background: var(--cupid-white);
+    font-size: 0.94rem;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.navigation-link:hover,
+.back-link:hover {
+    background: rgba(10, 148, 166, 0.10);
+    color: var(--cupid-blue);
+    transform: translateY(-1px);
+}
+
+.viewer {
+    padding: 9px 12px;
+    border-radius: 999px;
+    background: rgba(242, 170, 183, 0.22);
+    color: var(--cupid-navy);
+    font-size: 0.94rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.brand-logo,
+.home-brand-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--cupid-border);
+    border-radius: 50%;
+    background: var(--cupid-cream);
+    box-shadow: 0 5px 14px rgba(1, 16, 39, 0.12);
+}
+
+.brand-logo {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+}
+
+.brand-logo img,
+.home-brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The supplied square image has a black outer margin. Enlarging it inside
+       this circular frame removes that margin while keeping the original art. */
+    transform: scale(1.58);
+}
+
+.home-brand-logo {
+    width: clamp(112px, 16vw, 164px);
+    height: clamp(112px, 16vw, 164px);
+    margin-bottom: 12px;
+}
+
+.home-brand-logo img { transform: scale(1.58); }
+
+.standalone-navigation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.standalone-navigation .back-link {
+    margin: 0;
+}
+
+.user-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.match-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.history-list { gap: 20px; }
+.user-card, .match-card, .history-card { border-radius: 20px; }
+
+@media (max-width: 760px) {
+    main {
+        width: min(calc(100% - 32px), 1180px);
+        margin: 24px auto 48px !important;
+    }
+
+    .top-navigation {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .navigation-links,
+    .profile-actions { width: 100%; }
+
+    .viewer { white-space: normal; }
+
+    .history-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .history-details {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    .brand-logo {
+        width: 44px;
+        height: 44px;
+    }
+
+    .standalone-navigation { margin-bottom: 18px; }
+}
+
+@media (max-width: 460px) {
+    .navigation-link,
+    .back-link {
+        flex: 1 1 calc(50% - 8px);
+        padding: 8px 9px;
+        font-size: 0.88rem;
+    }
+
+    .user-grid,
+    .match-grid { grid-template-columns: 1fr; }
+
+    .profile-actions .edit-link { flex: 1 1 auto; text-align: center; }
+}
+
+/* -------------------------------------------------------------------------
+   Cupid visual refresh: an original, mobile-first dating-app experience.
+   This layer deliberately preserves the existing HTML routes and forms. */
+
+body {
+    background:
+        radial-gradient(circle at 7% 0%, rgba(242, 170, 183, 0.58), transparent 24rem),
+        radial-gradient(circle at 96% 7%, rgba(10, 148, 166, 0.23), transparent 26rem),
+        linear-gradient(180deg, #fffafa 0%, #fff8f9 46%, #f7fbfb 100%);
+    overflow-x: hidden;
+}
+
+body::before,
+body::after {
+    position: fixed;
+    z-index: -1;
+    width: clamp(10rem, 20vw, 19rem);
+    aspect-ratio: 1;
+    border-radius: 48% 52% 46% 54%;
+    background: rgba(168, 76, 100, 0.08);
+    pointer-events: none;
+    content: "";
+}
+
+body::before { top: 14%; left: -3rem; transform: rotate(-17deg); }
+body::after { right: -3rem; bottom: 4%; transform: rotate(18deg); }
+
+button,
+a { -webkit-tap-highlight-color: transparent; }
+
+button { font-family: inherit; }
+
+.top-navigation {
+    position: relative;
+    margin-bottom: clamp(22px, 4vw, 34px);
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 14px 35px rgba(1, 16, 39, 0.08);
+    backdrop-filter: blur(16px);
+}
+
+.brand-logo {
+    flex-basis: 52px;
+    width: 52px;
+    height: 52px;
+    border: 2px solid rgba(242, 170, 183, 0.56);
+}
+
+.navigation-link,
+.back-link {
+    min-height: 42px;
+    border-color: rgba(5, 114, 142, 0.13);
+    background: rgba(255, 255, 255, 0.76);
+    color: var(--cupid-navy);
+    font-weight: 800;
+}
+
+.navigation-link:hover,
+.back-link:hover {
+    background: var(--cupid-navy);
+    color: var(--cupid-white);
+}
+
+.viewer {
+    border: 1px solid rgba(242, 170, 183, 0.45);
+    background: rgba(255, 247, 249, 0.92);
+    color: var(--cupid-rose);
+}
+
+/* Profile selection / home */
+.home-page .page-header {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 10px;
+    min-height: 275px;
+    margin-bottom: 30px;
+    padding: clamp(28px, 5vw, 52px);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.94);
+    border-radius: 32px;
+    background:
+        radial-gradient(circle at 88% 22%, rgba(10, 148, 166, 0.25), transparent 20rem),
+        linear-gradient(125deg, rgba(255, 255, 255, 0.96), rgba(255, 244, 247, 0.9));
+    box-shadow: 0 22px 48px rgba(1, 16, 39, 0.10);
+}
+
+.home-page .page-header::after {
+    position: absolute;
+    top: 50%;
+    right: clamp(24px, 6vw, 80px);
+    width: clamp(165px, 25vw, 285px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(168, 76, 100, 0.12);
+    transform: translateY(-50%);
+    content: "";
+}
+
+.home-page .page-header > * { position: relative; z-index: 1; }
+
+.home-page .home-brand-logo {
+    position: absolute;
+    top: 50%;
+    right: clamp(52px, 11vw, 150px);
+    width: clamp(128px, 16vw, 178px);
+    height: clamp(128px, 16vw, 178px);
+    margin: 0;
+    border-width: 2px;
+    transform: translateY(-50%);
+}
+
+.home-page .page-header h1 {
+    margin: 0;
+    font-size: clamp(2.45rem, 6vw, 4.2rem);
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+}
+
+.home-page .page-header p {
+    max-width: 530px;
+    margin: 0;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    line-height: 1.55;
+}
+
+.home-page .status {
+    margin: 8px 0 0;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 0.86rem;
+}
+
+.home-page .create-profile-link {
+    margin-top: 4px;
+    padding: 13px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.52);
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--cupid-rose), #c85e78);
+    font-weight: 800;
+}
+
+.home-page .user-grid {
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 24px;
+}
+
+.home-page .user-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 385px;
+    padding: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.96);
+    border-radius: 27px;
+    background: linear-gradient(180deg, #ffffff 0%, #fffafb 100%);
+    box-shadow: 0 18px 36px rgba(1, 16, 39, 0.09);
+}
+
+.home-page .user-card::before {
+    position: absolute;
+    top: -50px;
+    right: -40px;
+    width: 150px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(242, 170, 183, 0.28);
+    content: "";
+}
+
+.home-page .user-card > * { position: relative; z-index: 1; }
+
+.home-page .user-card h2 {
+    max-width: 80%;
+    margin: 0 0 6px;
+    font-size: clamp(1.65rem, 3vw, 2rem);
+}
+
+.home-page .user-card .age { margin: 0; color: var(--cupid-rose); }
+
+.home-page .user-card .bio {
+    min-height: 52px;
+    margin: 18px 0 0;
+    color: #435166;
+}
+
+.home-page .active-badge {
+    align-self: flex-start;
+    margin-top: 14px;
+    border: 1px solid rgba(10, 148, 166, 0.17);
+    background: rgba(10, 148, 166, 0.11);
+    color: var(--cupid-blue);
+}
+
+.home-page .user-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: auto;
+    padding-top: 22px;
+}
+
+.home-page .continue-button {
+    grid-column: 1 / -1;
+    min-height: 49px;
+    padding: 13px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, var(--cupid-navy), #123858);
+    font-size: 0.98rem;
+}
+
+.home-page .profile-button,
+.home-page .matches-button,
+.home-page .history-button {
+    display: grid;
+    min-height: 44px;
+    padding: 8px;
+    place-items: center;
+    border-radius: 13px;
+    font-size: 0.78rem;
+    line-height: 1.2;
+}
+
+/* Discovery / swipe deck */
+.discover-page .profile-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    width: min(100%, 690px);
+    min-height: 0;
+    margin: 0 auto;
+    overflow: visible;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 31px;
+    background: transparent;
+    box-shadow:
+        10px 10px 0 rgba(242, 170, 183, 0.32),
+        20px 20px 0 rgba(10, 148, 166, 0.12),
+        0 25px 56px rgba(1, 16, 39, 0.15);
+}
+
+.discover-page .profile-image {
+    position: relative;
+    min-height: 330px;
+    overflow: hidden;
+    border-radius: 30px 30px 0 0;
+    background:
+        radial-gradient(circle at 70% 18%, rgba(255, 255, 255, 0.9), transparent 6.5rem),
+        linear-gradient(140deg, #f4aebe 0%, #fbe7ea 45%, #b9e7e9 100%) !important;
+    font-size: clamp(7.5rem, 18vw, 10.5rem);
+}
+
+.discover-page .profile-image::after {
+    position: absolute;
+    top: 22px;
+    left: 24px;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    border-radius: 999px;
+    background: rgba(1, 16, 39, 0.72);
+    color: var(--cupid-white);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    content: "DISCOVER";
+}
+
+.discover-page .profile-content {
+    min-height: 300px;
+    padding: clamp(28px, 5vw, 43px);
+    border-radius: 0 0 30px 30px;
+    background: var(--cupid-white);
+}
+
+.discover-page .profile-content h1 {
+    margin-bottom: 6px;
+    font-size: clamp(2.5rem, 7vw, 3.7rem);
+    letter-spacing: -0.055em;
+}
+
+.discover-page .profile-content .age {
+    color: var(--cupid-rose);
+    font-size: 1rem;
+}
+
+.discover-page .profile-content .bio {
+    min-height: 52px;
+    margin: 21px 0 28px;
+    color: #405066;
+    font-size: 1.08rem;
+}
+
+.discover-page .actions { gap: 12px; }
+
+.discover-page .action-button {
+    min-height: 58px;
+    border: 1px solid transparent;
+    border-radius: 17px;
+    box-shadow: 0 8px 16px rgba(1, 16, 39, 0.10);
+    font-size: 1rem;
+    font-weight: 800;
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.discover-page .action-button::before {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 1.28rem;
+    vertical-align: -0.08em;
+}
+
+.discover-page .dislike-button {
+    border-color: rgba(168, 76, 100, 0.22);
+    background: #fff0f2;
+    color: var(--cupid-rose);
+}
+
+.discover-page .dislike-button::before { content: "×"; }
+
+.discover-page .like-button {
+    background: linear-gradient(135deg, var(--cupid-teal), var(--cupid-blue));
+    color: var(--cupid-white);
+}
+
+.discover-page .like-button::before { content: "♥"; }
+
+.discover-page .action-button:hover {
+    filter: none;
+    opacity: 1;
+    transform: translateY(-3px);
+    box-shadow: 0 13px 24px rgba(1, 16, 39, 0.16);
+}
+
+.discover-page .next-step {
+    margin-top: 19px;
+    font-size: 0.82rem;
+}
+
+.discover-page .message {
+    width: min(100%, 690px);
+    margin: 0 auto 22px;
+    border-radius: 16px;
+}
+
+/* Matches and history */
+.collection-page .page-header {
+    position: relative;
+    margin: 0 0 25px;
+    padding: clamp(24px, 4vw, 38px);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.94);
+    border-radius: 27px;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.94), rgba(255, 242, 245, 0.9));
+    box-shadow: 0 18px 38px rgba(1, 16, 39, 0.07);
+}
+
+.collection-page .page-header::after {
+    position: absolute;
+    top: -52px;
+    right: 32px;
+    width: 148px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(242, 170, 183, 0.32);
+    content: "";
+}
+
+.collection-page .page-header > * { position: relative; z-index: 1; }
+
+.collection-page .page-header h1 {
+    margin: 0 0 7px;
+    font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.collection-page .page-header p {
+    max-width: 510px;
+    margin: 0;
+    font-size: 1.04rem;
+}
+
+.matches-page .match-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+}
+
+.matches-page .match-card {
+    border: 1px solid rgba(255, 255, 255, 0.96);
+    border-radius: 25px;
+    box-shadow: 0 16px 34px rgba(1, 16, 39, 0.09);
+}
+
+.matches-page .profile-image {
+    position: relative;
+    height: 215px;
+    background: linear-gradient(135deg, #f5bac6, #e7edf2) !important;
+    font-size: 4.8rem;
+}
+
+.matches-page .profile-image::after {
+    position: absolute;
+    right: 15px;
+    bottom: 14px;
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 2px solid white;
+    border-radius: 50%;
+    background: var(--cupid-rose);
+    content: "";
+}
+
+.matches-page .match-content { padding: 25px; }
+
+.matches-page .match-content h2 { font-size: 1.6rem; }
+
+.matches-page .match-content .age { color: var(--cupid-rose); }
+
+.matches-page .status-badge {
+    border: 1px solid rgba(10, 148, 166, 0.2);
+    background: rgba(10, 148, 166, 0.1);
+    color: var(--cupid-blue);
+}
+
+.matches-page .match-date { border-top-color: rgba(5, 114, 142, 0.12); }
+
+.history-page .history-list { gap: 18px; }
+
+.history-page .history-card {
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+    min-height: 104px;
+    padding: 17px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.94);
+    border-radius: 23px;
+    background: rgba(255, 255, 255, 0.91);
+    box-shadow: 0 12px 28px rgba(1, 16, 39, 0.07);
+}
+
+.history-page .profile-image {
+    width: 70px;
+    height: 70px;
+    border: 3px solid rgba(255, 255, 255, 0.92);
+    box-shadow: 0 5px 14px rgba(1, 16, 39, 0.11);
+}
+
+.history-page .history-content h2 { font-size: 1.2rem; }
+
+.history-page .history-content .age { color: var(--cupid-rose); }
+
+.history-page .history-details {
+    min-width: 168px;
+    padding-left: 16px;
+    border-left: 1px solid rgba(5, 114, 142, 0.13);
+}
+
+.history-page .decision-badge {
+    min-width: 70px;
+    text-align: center;
+}
+
+.history-page .like-badge {
+    background: rgba(10, 148, 166, 0.12);
+    color: var(--cupid-blue);
+}
+
+.history-page .dislike-badge {
+    background: rgba(242, 170, 183, 0.27);
+    color: var(--cupid-rose);
+}
+
+.empty-state {
+    padding: clamp(32px, 6vw, 54px);
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.9);
+    text-align: center;
+}
+
+/* Profile, account settings, and forms */
+.profile-page main { max-width: 940px; }
+
+.profile-page .card,
+.profile-editor-page .card,
+.settings-page .card {
+    border: 1px solid rgba(255, 255, 255, 0.96);
+    border-radius: 27px;
+    box-shadow: 0 18px 40px rgba(1, 16, 39, 0.09);
+}
+
+.profile-page .card {
+    margin-top: 22px;
+    padding: clamp(26px, 5vw, 42px);
+}
+
+.profile-page .card > h1 {
+    margin-top: 19px;
+    font-size: clamp(2.2rem, 5vw, 3.1rem);
+}
+
+.profile-page .avatar {
+    width: 104px;
+    height: 104px;
+    border: 4px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 9px 20px rgba(1, 16, 39, 0.14);
+    font-size: 47px;
+}
+
+.profile-page .age { color: var(--cupid-rose); }
+
+.profile-page .bio { max-width: 65ch; font-size: 1.06rem; }
+
+.profile-page .gallery { gap: 15px; }
+
+.profile-page .primary-picture img {
+    max-height: 470px;
+    border-radius: 20px;
+    box-shadow: 0 10px 26px rgba(1, 16, 39, 0.11);
+}
+
+.profile-page .thumb img { border-radius: 13px; }
+
+.profile-page .upload-button,
+.profile-page .deactivate-button,
+.profile-page .cancel-button,
+.profile-page .edit-link,
+.profile-editor-page .submit-button,
+.settings-page .save-button {
+    min-height: 46px;
+    border-radius: 14px;
+    font-weight: 800;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.profile-page .upload-button,
+.profile-editor-page .submit-button,
+.settings-page .save-button {
+    background: linear-gradient(135deg, var(--cupid-navy), #123858);
+    box-shadow: 0 8px 18px rgba(1, 16, 39, 0.17);
+}
+
+.profile-page .upload-button:hover,
+.profile-editor-page .submit-button:hover,
+.settings-page .save-button:hover {
+    background: linear-gradient(135deg, var(--cupid-blue), var(--cupid-teal));
+    transform: translateY(-2px);
+}
+
+.profile-page .edit-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: linear-gradient(135deg, var(--cupid-rose), #c85e78);
+}
+
+.profile-page .danger-zone {
+    margin-top: 22px;
+    padding: clamp(25px, 5vw, 38px);
+    border-radius: 27px;
+    background: rgba(255, 251, 251, 0.9);
+}
+
+.profile-page .confirmation {
+    padding: 14px;
+    border: 1px solid rgba(242, 170, 183, 0.6);
+    border-radius: 15px;
+    background: #fff7f8;
+}
+
+.profile-editor-page main,
+.settings-page main { max-width: 740px; }
+
+.profile-editor-page .card,
+.settings-page .card {
+    margin-top: 0;
+    padding: clamp(27px, 5vw, 44px);
+}
+
+.profile-editor-page .card h1,
+.settings-page .card h1 {
+    margin-top: 0;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+}
+
+.profile-editor-page label {
+    margin-top: 23px;
+    color: var(--cupid-navy);
+}
+
+.profile-editor-page input,
+.profile-editor-page textarea,
+.deletion-phrase-label input {
+    padding: 14px 15px;
+    border-radius: 14px;
+    background: #fffdfd;
+}
+
+.profile-editor-page textarea { min-height: 155px; }
+
+.profile-editor-page .submit-button,
+.settings-page .save-button { margin-top: 28px; }
+
+.settings-page .setting-option {
+    padding: 20px;
+    border-radius: 17px;
+    background: #fffafb;
+}
+
+.settings-page .setting-option:hover {
+    border-color: var(--cupid-blush);
+    background: #fff5f7;
+}
+
+.settings-page .safety-note {
+    border: 1px solid rgba(242, 170, 183, 0.56);
+    color: var(--cupid-navy);
+}
+
+.error-page main {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 24px !important;
+}
+
+.error-page .error-card {
+    border-radius: 29px;
+    box-shadow: 0 24px 52px rgba(1, 16, 39, 0.13);
+}
+
+@media (max-width: 980px) {
+    .top-navigation { flex-wrap: wrap; }
+
+    .top-navigation .navigation-links {
+        order: 3;
+        flex: 1 1 100%;
+        flex-wrap: nowrap;
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .top-navigation .navigation-links::-webkit-scrollbar { display: none; }
+
+    .top-navigation .navigation-link,
+    .top-navigation .back-link { flex: 0 0 auto; }
+
+    .top-navigation .viewer { margin-left: auto; }
+}
+
+@media (max-width: 760px) {
+    .top-navigation {
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 10px;
+    }
+
+    .navigation-links {
+        order: 3;
+        flex: 1 1 100%;
+        flex-wrap: nowrap;
+        width: auto;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .navigation-links::-webkit-scrollbar { display: none; }
+
+    .navigation-link,
+    .back-link { flex: 0 0 auto; }
+
+    .viewer { flex: 1 1 100%; text-align: center; }
+
+    .home-page .page-header { min-height: 0; padding: 32px 26px; }
+
+    .home-page .home-brand-logo {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 78px;
+        height: 78px;
+        transform: none;
+    }
+
+    .home-page .page-header::after {
+        top: auto;
+        right: 22px;
+        bottom: -58px;
+        width: 145px;
+        transform: none;
+    }
+
+    .home-page .user-actions { grid-template-columns: 1fr 1fr; }
+
+    .home-page .history-button { grid-column: 1 / -1; }
+
+    .discover-page .profile-card {
+        width: calc(100% - 12px);
+        box-shadow:
+            6px 6px 0 rgba(242, 170, 183, 0.31),
+            12px 12px 0 rgba(10, 148, 166, 0.11),
+            0 22px 42px rgba(1, 16, 39, 0.14);
+    }
+
+    .discover-page .profile-image { min-height: 290px; }
+
+    .history-page .history-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+        padding: 16px;
+    }
+
+    .history-page .profile-image { width: 58px; height: 58px; }
+
+    .history-page .history-details {
+        grid-column: 1 / -1;
+        min-width: 0;
+        padding: 13px 0 0;
+        border-top: 1px solid rgba(5, 114, 142, 0.13);
+        border-left: 0;
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    body::before,
+    body::after { font-size: 8rem; }
+
+    .home-page .page-header h1 { font-size: 2.55rem; }
+
+    .home-page .user-card { min-height: 0; padding: 24px; }
+
+    .home-page .user-actions { grid-template-columns: 1fr; }
+
+    .home-page .history-button { grid-column: auto; }
+
+    .discover-page .profile-image { min-height: 250px; }
+
+    .discover-page .profile-content { padding: 27px 23px; }
+
+    .discover-page .actions { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .discover-page .action-button { min-height: 55px; font-size: 0.92rem; }
+
+    .matches-page .match-grid { grid-template-columns: 1fr; }
+
+    .profile-page .top-navigation { align-items: stretch; }
+
+    .profile-page .profile-actions { width: 100%; }
+
+    .profile-page .profile-actions .edit-link { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}

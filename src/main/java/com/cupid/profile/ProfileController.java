@@ -59,10 +59,10 @@ public class ProfileController {
             User createdProfile = profileService.createProfile(profileForm);
             redirectAttributes.addFlashAttribute(
                     "successMessage",
-                    "Profile created successfully."
+                    "Profile created successfully. Add a photo to complete it."
             );
 
-            return "redirect:/profiles/" + createdProfile.getId();
+            return "redirect:/profiles/" + createdProfile.getId() + "#photo-upload";
         } catch (ProfileException exception) {
             model.addAttribute("errorMessage", exception.getMessage());
             prepareEditModel(model, profileForm, null);
@@ -88,9 +88,16 @@ public class ProfileController {
         }
 
         model.addAttribute("profile", profile.get());
+        boolean globalAccountDeletionEnabled =
+                profileService.isAccountDeletionEnabled();
+        model.addAttribute(
+                "globalAccountDeletionEnabled",
+                globalAccountDeletionEnabled
+        );
         model.addAttribute(
                 "accountDeletionEnabled",
-                profileService.isAccountDeletionEnabled()
+                globalAccountDeletionEnabled
+                        && profile.get().isAccountDeactivationEnabled()
         );
 
         List<ProfilePicture> pictures = pictureService.listPictures(profileId);
@@ -103,6 +110,61 @@ public class ProfileController {
                 );
 
         return "profile";
+    }
+
+    /**
+     * FR_Profile_Keep_Ethics: a user-facing preference screen makes account
+     * account deletion difficult but not impossible.
+     */
+    @GetMapping("/profiles/{profileId}/settings")
+    public String accountSettings(
+            @PathVariable Long profileId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<User> profile = profileService.findActiveProfile(profileId);
+
+        if (profile.isEmpty()) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "The requested profile is unavailable."
+            );
+            return "redirect:/";
+        }
+
+        model.addAttribute("profile", profile.get());
+        model.addAttribute(
+                "globalAccountDeletionEnabled",
+                profileService.isAccountDeletionEnabled()
+        );
+        return "account-settings";
+    }
+
+    @PostMapping("/profiles/{profileId}/settings")
+    public String updateAccountSettings(
+            @PathVariable Long profileId,
+            @RequestParam(defaultValue = "false") boolean accountDeactivationEnabled,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            profileService.updateAccountDeactivationPreference(
+                    profileId,
+                    accountDeactivationEnabled
+            );
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    accountDeactivationEnabled
+                            ? "Account deletion is now available after final confirmation."
+                            : "Account deletion has been turned off."
+            );
+            return "redirect:/profiles/" + profileId + "/settings";
+        } catch (ProfileException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+            return "redirect:/profiles/" + profileId;
+        }
     }
 
     @GetMapping("/profiles/{profileId}/edit")
@@ -158,13 +220,18 @@ public class ProfileController {
     public String deactivateProfile(
             @PathVariable Long profileId,
             @RequestParam(defaultValue = "false") boolean confirmed,
+            @RequestParam(required = false) String deletionPhrase,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            profileService.deactivateProfile(profileId, confirmed);
+            profileService.deactivateProfile(
+                    profileId,
+                    confirmed,
+                    deletionPhrase
+            );
             redirectAttributes.addFlashAttribute(
                     "successMessage",
-                    "Your profile has been deactivated and is no longer shown in Cupid."
+                    "Your account has been deleted and is no longer shown in Cupid."
             );
 
             return "redirect:/";

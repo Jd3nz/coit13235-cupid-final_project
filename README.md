@@ -27,16 +27,12 @@ COIT13235 Enterprise Software Development — Assignment 3.
 
 Account deletion is implemented as a soft deactivation so that the profile is
 removed from discovery while existing swipe and match records remain valid.
-It is disabled by default. To demonstrate the deliberately difficult but
-possible action, set the following single property to `true` and restart the
-application:
-
-```properties
-cupid.profile.account-deletion-enabled=true
-```
-
-The Profile component still requires an explicit checkbox confirmation before
-deactivation is processed by the server.
+The one global setting `cupid.profile.account-deletion-enabled` can disable
+account deletion for every user. When it is enabled, the profile owner must
+first open **Account settings** and select **Allow my account to be deleted**.
+This does not delete the profile; it only enables the final deletion process.
+The Profile component then requires a separate acknowledgement checkbox and
+the exact word `DELETE` before the soft deletion is processed by the server.
 
 ## Technology
 

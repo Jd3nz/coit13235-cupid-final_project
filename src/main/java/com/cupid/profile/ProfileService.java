@@ -78,28 +78,62 @@ public class ProfileService {
     }
 
     /**
-     * FR_Profile_Keep_Ethics: requires both the central setting and an
-     * explicit user confirmation before the profile is soft-deleted.
+     * FR_Profile_Keep_Ethics: requires the global ethical setting, a
+     * profile-specific opt-in, a checkbox, and the exact word DELETE.
      */
     @Transactional
-    public void deactivateProfile(Long profileId, boolean confirmed) {
+    public void deactivateProfile(
+            Long profileId,
+            boolean confirmed,
+            String deletionPhrase
+    ) {
         if (!profileSettings.isAccountDeletionEnabled()) {
             throw new ProfileException(
-                    "Account deletion is currently disabled by the ethical settings."
+                    "Account deletion is currently disabled by Cupid's ethical settings."
+            );
+        }
+
+        User user = requireActiveProfile(profileId);
+
+        if (!user.isAccountDeactivationEnabled()) {
+            throw new ProfileException(
+                    "Enable account deletion in Account Settings before continuing."
             );
         }
 
         if (!confirmed) {
             throw new ProfileException(
-                    "Confirm account deletion before continuing."
+                    "Confirm that you understand the account-deletion warning."
             );
         }
 
-        User user = requireActiveProfile(profileId);
+        if (!"DELETE".equals(deletionPhrase == null ? "" : deletionPhrase.trim())) {
+            throw new ProfileException(
+                    "Type DELETE exactly to confirm account deletion."
+            );
+        }
+
         user.deactivate();
         userRepository.save(user);
     }
 
+    /**
+     * FR_Profile_Keep_Ethics: records the profile owner's deliberate choice
+     * to make the carefully confirmed action available.
+     */
+    @Transactional
+    public void updateAccountDeactivationPreference(
+            Long profileId,
+            boolean enabled
+    ) {
+        User user = requireActiveProfile(profileId);
+        user.updateAccountDeactivationPreference(enabled);
+        userRepository.save(user);
+    }
+
+    /**
+     * Exposes the one global setting required by FR_Profile_Keep_Ethics.
+     */
     public boolean isAccountDeletionEnabled() {
         return profileSettings.isAccountDeletionEnabled();
     }

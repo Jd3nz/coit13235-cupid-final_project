@@ -17,6 +17,7 @@ entity "users" as users {
   * age : INTEGER (18-120)
   bio : VARCHAR(500)
   * active : BOOLEAN = TRUE
+  * account_deactivation_enabled : BOOLEAN = FALSE
   * created_at : TIMESTAMP
   --
   Owned by Profile component
@@ -105,10 +106,8 @@ entity "settings" as settings {
   * value : VARCHAR(255)
   * updated_at : TIMESTAMP
   --
-  Holds 3 ethics toggles:
-  - profile.account-deletion-enabled
-  - matching.swipe-encouragement-enabled
-  - messaging.message-coercion-enabled
+  Supports shared Matching and Messaging preferences.
+  Profile deletion preference is stored on users.
   Owned by Shared (Tanzim)
 }
 

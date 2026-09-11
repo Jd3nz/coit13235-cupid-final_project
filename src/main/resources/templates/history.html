@@ -192,15 +192,25 @@
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
 </head>
 
-<body>
+<body class="collection-page history-page">
 <main>
     <nav class="top-navigation">
+        <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
+        </a>
         <div class="navigation-links">
             <a
                 class="navigation-link"
                 th:href="@{/}"
             >
-                ← Change user
+                ← Back to Cupid
+            </a>
+
+            <a
+                class="navigation-link"
+                th:href="@{/profiles/{profileId}(profileId=${viewer.id})}"
+            >
+                View profile
             </a>
 
             <a
@@ -230,7 +240,7 @@
         <h1>Swipe History</h1>
 
         <p>
-            A record of every profile you liked or disliked.
+            A private record of the people you have explored.
         </p>
     </header>
 

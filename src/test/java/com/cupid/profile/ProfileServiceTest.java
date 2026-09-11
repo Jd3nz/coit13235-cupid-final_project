@@ -41,6 +41,7 @@ class ProfileServiceTest {
     @BeforeEach
     void setUp() {
         profileSettings = new ProfileSettingsProperties();
+        profileSettings.setAccountDeletionEnabled(true);
         profileService = new ProfileService(userRepository, profileSettings);
         alex = new User(
                 1L,
@@ -109,49 +110,109 @@ class ProfileServiceTest {
     }
 
     /**
-     * FR_Profile_Keep_Ethics: the central setting blocks deletion by default.
+     * FR_Profile_Keep_Ethics: the single global setting can disable deletion
+     * for every user.
      */
     @Test
-    void deactivateProfile_shouldRejectWhenEthicalSettingIsDisabled() {
+    void deactivateProfile_shouldRejectWhenGlobalEthicalSettingIsDisabled() {
+        profileSettings.setAccountDeletionEnabled(false);
+
         ProfileException exception = assertThrows(
                 ProfileException.class,
-                () -> profileService.deactivateProfile(alex.getId(), true)
+                () -> profileService.deactivateProfile(alex.getId(), true, "DELETE")
         );
 
-        assertTrue(exception.getMessage().contains("disabled"));
+        assertTrue(exception.getMessage().contains("ethical settings"));
+        verify(userRepository, never()).findById(alex.getId());
+    }
+
+    /**
+     * FR_Profile_Keep_Ethics: deletion stays unavailable until the profile
+     * owner deliberately enables it from Account Settings.
+     */
+    @Test
+    void deactivateProfile_shouldRejectWhenAccountSettingsAreDisabled() {
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+
+        ProfileException exception = assertThrows(
+                ProfileException.class,
+                () -> profileService.deactivateProfile(alex.getId(), true, "DELETE")
+        );
+
+        assertTrue(exception.getMessage().contains("Account Settings"));
         verify(userRepository, never()).save(any(User.class));
     }
 
     /**
-     * FR_Profile_Keep_Ethics: after the shared setting is enabled, explicit
-     * confirmation performs a soft account deletion.
+     * FR_Profile_Keep_Ethics: saving the setting records a deliberate opt-in
+     * without deactivating the profile.
+     */
+    @Test
+    void updateAccountDeactivationPreference_shouldPersistProfileChoice() {
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+        when(userRepository.save(alex)).thenReturn(alex);
+
+        profileService.updateAccountDeactivationPreference(alex.getId(), true);
+
+        assertTrue(alex.isAccountDeactivationEnabled());
+        assertTrue(alex.isActive());
+        verify(userRepository).save(alex);
+    }
+
+    /**
+     * FR_Profile_Keep_Ethics: after the profile owner enables the setting,
+     * acknowledgement and the exact phrase perform a soft account deletion.
      */
     @Test
     void deactivateProfile_shouldDeactivateConfirmedProfileWhenEnabled() {
-        profileSettings.setAccountDeletionEnabled(true);
+        alex.updateAccountDeactivationPreference(true);
         when(userRepository.findById(alex.getId()))
                 .thenReturn(Optional.of(alex));
 
-        profileService.deactivateProfile(alex.getId(), true);
+        profileService.deactivateProfile(alex.getId(), true, "DELETE");
 
         assertFalse(alex.isActive());
         verify(userRepository).save(alex);
     }
 
     /**
-     * FR_Profile_Keep_Ethics: even when the setting is enabled, the user must
-     * explicitly confirm the action.
+     * FR_Profile_Keep_Ethics: a final confirmation is still required after
+     * the profile owner enabled the setting.
      */
     @Test
     void deactivateProfile_shouldRequireConfirmation() {
-        profileSettings.setAccountDeletionEnabled(true);
+        alex.updateAccountDeactivationPreference(true);
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
 
         ProfileException exception = assertThrows(
                 ProfileException.class,
-                () -> profileService.deactivateProfile(alex.getId(), false)
+                () -> profileService.deactivateProfile(alex.getId(), false, "DELETE")
         );
 
         assertTrue(exception.getMessage().contains("Confirm"));
-        verify(userRepository, never()).findById(alex.getId());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    /**
+     * FR_Profile_Keep_Ethics: a checked box is not sufficient; the profile
+     * owner must type the exact deliberate confirmation word.
+     */
+    @Test
+    void deactivateProfile_shouldRequireExactDeletionPhrase() {
+        alex.updateAccountDeactivationPreference(true);
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+
+        ProfileException exception = assertThrows(
+                ProfileException.class,
+                () -> profileService.deactivateProfile(alex.getId(), true, "delete")
+        );
+
+        assertTrue(exception.getMessage().contains("DELETE"));
+        assertTrue(alex.isActive());
+        verify(userRepository, never()).save(any(User.class));
     }
 }

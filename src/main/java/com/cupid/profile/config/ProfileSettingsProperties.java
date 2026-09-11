@@ -3,18 +3,15 @@ package com.cupid.profile.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * One shared, configurable ethical setting for Profile operations.
+ * Global ethical control for account deletion.
  *
- * Requirement: FR_Profile_Keep_Ethics.
- *
- * The default protects users from accidental account deletion. Tanzim's
- * settings/preferences UI should use this property contract rather than
- * duplicating the deletion policy in a controller or template.
+ * FR_Profile_Keep_Ethics requires one setting that can disable this
+ * functionality for every Cupid user.
  */
 @ConfigurationProperties(prefix = "cupid.profile")
 public class ProfileSettingsProperties {
 
-    private boolean accountDeletionEnabled = false;
+    private boolean accountDeletionEnabled = true;
 
     public boolean isAccountDeletionEnabled() {
         return accountDeletionEnabled;

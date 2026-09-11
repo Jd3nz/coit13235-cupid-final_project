@@ -4,8 +4,27 @@ CREATE TABLE IF NOT EXISTS users (
     age INTEGER NOT NULL CHECK (age BETWEEN 18 AND 120),
     bio VARCHAR(500),
     active BOOLEAN NOT NULL DEFAULT TRUE,
+    account_deactivation_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
 );
+
+-- Adds the column only when needed. This supports existing databases on MySQL
+-- versions that do not accept ALTER TABLE ... ADD COLUMN IF NOT EXISTS.
+SET @account_deactivation_column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'users'
+      AND column_name = 'account_deactivation_enabled'
+);
+SET @add_account_deactivation_column = IF(
+    @account_deactivation_column_exists = 0,
+    'ALTER TABLE users ADD COLUMN account_deactivation_enabled BOOLEAN NOT NULL DEFAULT FALSE',
+    'SELECT 1'
+);
+PREPARE add_account_deactivation_column FROM @add_account_deactivation_column;
+EXECUTE add_account_deactivation_column;
+DEALLOCATE PREPARE add_account_deactivation_column;
 
 CREATE TABLE IF NOT EXISTS current_swipes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

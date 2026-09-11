@@ -72,9 +72,19 @@
     </style>
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
 </head>
-<body>
+<body class="profile-editor-page">
 <main>
-    <a class="back-link" th:href="@{/}">← Back to Cupid</a>
+    <nav class="standalone-navigation" aria-label="Profile navigation">
+        <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
+        </a>
+        <a class="back-link" th:if="${isNew}" th:href="@{/}">← Back to Cupid</a>
+        <a
+                class="back-link"
+                th:unless="${isNew}"
+                th:href="@{/profiles/{profileId}(profileId=${profileId})}"
+        >← Back to profile</a>
+    </nav>
 
     <section class="card">
         <h1 th:text="${isNew} ? 'Create your profile' : 'Edit your profile'">
