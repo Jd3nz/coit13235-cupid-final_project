@@ -117,19 +117,170 @@
         }
     </style>
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
+    <style>
+        /* Account Settings keeps Tanzim's preference controls, while matching
+           Cupid’s shared profile and messaging visual system. */
+        .settings-page main {
+            width: min(calc(100% - 48px), 920px);
+            max-width: 920px;
+            margin: clamp(28px, 5vw, 64px) auto;
+            padding: 0;
+        }
+        .settings-page .top-navigation {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 26px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 14px 35px rgba(1, 16, 39, 0.08);
+        }
+        .settings-page .brand-logo {
+            display: inline-flex;
+            flex: 0 0 52px;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            overflow: hidden;
+            border: 2px solid rgba(242, 170, 183, 0.56);
+            border-radius: 50%;
+            background: #fff8f9;
+            box-shadow: 0 5px 14px rgba(1, 16, 39, 0.12);
+        }
+        .settings-page .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.58);
+        }
+        .settings-page .navigation-links {
+            display: flex;
+            flex: 1 1 auto;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .settings-page .navigation-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 8px 14px;
+            border: 1px solid rgba(5, 114, 142, 0.14);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #011027;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .settings-page .current-link {
+            border-color: rgba(168, 76, 100, 0.22);
+            background: rgba(242, 170, 183, 0.20);
+            color: #a84c64;
+        }
+        .settings-page .viewer-status {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: baseline;
+            gap: 7px;
+            margin-left: auto;
+            padding: 3px 0 3px 16px;
+            border-left: 1px solid rgba(5, 114, 142, 0.22);
+            color: #536476;
+            font-size: 0.86rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .settings-page .viewer-status-label,
+        .settings-page .eyebrow {
+            color: #536476;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+        .settings-page .viewer-status-name { color: #a84c64; font-size: 0.96rem; font-weight: 850; }
+        .settings-page .settings-hero {
+            margin: 0 0 18px;
+            padding: clamp(26px, 5vw, 40px);
+            border: 1px solid rgba(255, 255, 255, 0.94);
+            border-radius: 28px;
+            background: linear-gradient(125deg, rgba(255, 255, 255, 0.96), rgba(255, 242, 245, 0.90));
+            box-shadow: 0 18px 38px rgba(1, 16, 39, 0.08);
+        }
+        .settings-page .settings-hero h1 { margin: 5px 0 8px; color: #011027; font-size: clamp(2.1rem, 5vw, 3rem); }
+        .settings-page .settings-hero p:last-child { max-width: 620px; margin: 0; color: #536476; line-height: 1.55; }
+        .settings-page form { display: grid; gap: 18px; }
+        .settings-page .card {
+            margin: 0;
+            padding: clamp(24px, 4vw, 34px);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.93);
+            box-shadow: 0 15px 32px rgba(1, 16, 39, 0.08);
+        }
+        .settings-page .card h2 { color: #011027; }
+        .settings-page .setting-option {
+            align-items: center;
+            margin: 18px 0 10px;
+            border-color: rgba(242, 170, 183, 0.65);
+            border-radius: 16px;
+            background: #fff8f9;
+        }
+        .settings-page .setting-option input[type="checkbox"] { accent-color: #a84c64; }
+        .settings-page .hint { color: #536476; }
+        .settings-page .safety-note,
+        .settings-page .info-message {
+            border: 1px solid rgba(10, 148, 166, 0.18);
+            border-radius: 14px;
+            background: rgba(10, 148, 166, 0.09);
+            color: #011027;
+        }
+        .settings-page .error-message { border-radius: 14px; }
+        .settings-page .preference-field input[type="number"],
+        .settings-page .preference-field select {
+            border-color: rgba(5, 114, 142, 0.26);
+            border-radius: 12px;
+        }
+        .settings-page .range-value { color: #a84c64; }
+        .settings-page .save-button {
+            width: auto;
+            justify-self: end;
+            min-height: 48px;
+            margin: 0;
+            padding: 12px 22px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #011027, #123858);
+            box-shadow: 0 8px 18px rgba(1, 16, 39, 0.17);
+        }
+        @media (max-width: 700px) {
+            .settings-page main { width: min(calc(100% - 32px), 920px); margin: 24px auto 48px; }
+            .settings-page .top-navigation { flex-wrap: wrap; padding: 10px; }
+            .settings-page .navigation-links { order: 3; flex: 1 1 100%; flex-wrap: nowrap; overflow-x: auto; }
+            .settings-page .viewer-status { margin-left: auto; padding-left: 10px; }
+            .settings-page .age-range-row { flex-direction: column; gap: 0; }
+            .settings-page .save-button { width: 100%; }
+        }
+    </style>
 </head>
 <body class="settings-page">
 <main>
-    <nav class="standalone-navigation" aria-label="Profile navigation">
+    <nav class="top-navigation" aria-label="Cupid navigation">
         <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
             <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
         </a>
-        <a
-                class="back-link"
-                th:href="@{/profiles/{profileId}(profileId=${profile.id})}"
-        >
-            ← Back to profile
-        </a>
+        <div class="navigation-links">
+            <a class="navigation-link"
+               th:href="@{/profiles/{profileId}(profileId=${profile.id})}">← Back to Profile</a>
+            <span class="navigation-link current-link" aria-current="page">Account Settings</span>
+        </div>
+        <span class="viewer-status">
+            <span class="viewer-status-label">Viewing as</span>
+            <span class="viewer-status-name" th:text="${profile.displayName}">Cupid profile</span>
+        </span>
     </nav>
 
     <p
@@ -147,12 +298,18 @@
         Unable to save preferences.
     </p>
 
+    <header class="settings-hero">
+        <p class="eyebrow">PROFILE PREFERENCES</p>
+        <h1>Account settings</h1>
+        <p>Choose what feels right for you, including reminder preferences and how Cupid presents your profile.</p>
+    </header>
+
     <form
             th:action="@{/profiles/{profileId}/settings(profileId=${profile.id})}"
             method="post"
     >
         <section class="card">
-            <h1>Account settings</h1>
+            <h2>Account safety</h2>
             <p class="hint">
                 Cupid makes account deletion an intentional choice. The action
                 is only available after you enable it here and complete the
