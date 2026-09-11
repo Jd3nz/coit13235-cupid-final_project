@@ -10,6 +10,9 @@ COIT13235 Enterprise Software Development — Assignment 3.
 - `FR_Profile_Fetch`
 - `FR_Profile_Keep_Ethics`
 
+### Profile Picture - Tanzim 
+-'FR_Profile_Picture'
+
 ### Matching - Jay
 
 - `FR_Swipe`
