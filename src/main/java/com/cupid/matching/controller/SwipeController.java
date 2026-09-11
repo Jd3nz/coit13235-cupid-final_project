@@ -24,10 +24,7 @@ public class SwipeController {
     /**
      * Receives Like and Dislike form submissions.
      *
-     * Supports:
-     * FR_Swipe
-     * FR_Match
-     * FR_Web_UI
+     * Supports: FR_Swipe FR_Match FR_Web_UI
      */
     @PostMapping("/swipes")
     public String recordSwipe(
@@ -45,8 +42,8 @@ public class SwipeController {
         }
 
         try {
-            SwipeResult result =
-                    swipeService.recordSwipe(request);
+            SwipeResult result
+                    = swipeService.recordSwipe(request);
 
             if (result.matched()) {
                 redirectAttributes.addFlashAttribute(
@@ -54,10 +51,10 @@ public class SwipeController {
                         "It's a match! You both liked each other."
                 );
             } else {
-                String message =
-                        request.getDecision() == SwipeDecision.LIKE
-                                ? "Like recorded successfully."
-                                : "Dislike recorded successfully.";
+                String message
+                        = request.getDecision() == SwipeDecision.LIKE
+                        ? "Like recorded successfully."
+                        : "Dislike recorded successfully.";
 
                 redirectAttributes.addFlashAttribute(
                         "successMessage",

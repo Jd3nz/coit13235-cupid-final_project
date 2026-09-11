@@ -59,4 +59,15 @@ CREATE TABLE IF NOT EXISTS messages (
 
     INDEX idx_messages_conversation
         (sender_id, receiver_id, sent_at, id)
+ );
+CREATE TABLE IF NOT EXISTS profile_pictures (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    content_type VARCHAR(50) NOT NULL,
+    file_size BIGINT NOT NULL,
+    primary_picture BOOLEAN NOT NULL DEFAULT FALSE,
+    data LONGBLOB NOT NULL,
+    uploaded_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    INDEX idx_profile_pictures_user (user_id),
+    INDEX idx_profile_pictures_primary (user_id, primary_picture)
 );

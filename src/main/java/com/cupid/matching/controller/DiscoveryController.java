@@ -28,8 +28,8 @@ public class DiscoveryController {
             @RequestParam Long userId,
             Model model
     ) {
-        Optional<User> viewer =
-                discoveryService.findViewer(userId);
+        Optional<User> viewer
+                = discoveryService.findViewer(userId);
 
         if (viewer.isEmpty()) {
             return "redirect:/";
