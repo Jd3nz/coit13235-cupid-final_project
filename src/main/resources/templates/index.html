@@ -241,33 +241,7 @@
             >
                 Continue
             </a>
-
-            <a
-                class="profile-button"
-                th:href="@{/profiles/{profileId}(profileId=${user.id})}"
-            >
-                View Profile
-            </a>
-
-            <a
-                class="matches-button"
-                th:href="@{/matches(userId=${user.id})}"
-            >
-                My Matches
-            </a>
-            <a
-                class="matches-button"
-                th:href="@{/messages(userId=${user.id})}"
-            >
-                Messages
-            </a>
-            <a
-                class="history-button"
-                th:href="@{/history(userId=${user.id})}"
-            >
-                Swipe History
-            </a>
-</div>
+            </div>
 
         </article>
     </section>
