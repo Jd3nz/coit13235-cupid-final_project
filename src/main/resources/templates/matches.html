@@ -164,39 +164,18 @@
             <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
         </a>
         <div class="navigation-links">
-            <a
-                class="navigation-link"
-                th:href="@{/}"
-            >
-                ← Back to Cupid
-            </a>
-            <a
-                class="navigation-link"
-                th:href="@{/profiles/{profileId}(profileId=${viewer.id})}"
-            >
-                View profile
-            </a>
-
-            <a
-                class="navigation-link"
-                th:href="@{/discover(userId=${viewer.id})}"
-            >
-                Discover
-            </a>
-
-            <a
-                class="navigation-link"
-                th:href="@{/history(userId=${viewer.id})}"
-            >
-                Swipe History
-            </a>
+            <a class="navigation-link" th:href="@{/}">← Back to Cupid</a>
+            <a class="navigation-link"
+               th:href="@{/profiles/{profileId}(profileId=${viewer.id})}">View Profile</a>
+            <a class="navigation-link" th:href="@{/discover(userId=${viewer.id})}">Discover</a>
+            <span class="navigation-link current-link" aria-current="page">My Matches</span>
+            <a class="navigation-link" th:href="@{/history(userId=${viewer.id})}">Swipe History</a>
+            <a class="navigation-link" th:href="@{/messages(userId=${viewer.id})}">Messages</a>
         </div>
 
-        <span
-            class="viewer"
-            th:text="|Using Cupid as ${viewer.displayName}|"
-        >
-            Using Cupid as Alex
+        <span class="viewer viewer-status">
+            <span class="viewer-status-label">Viewing as</span>
+            <span class="viewer-status-name" th:text="${viewer.displayName}">Cupid profile</span>
         </span>
     </nav>
 
