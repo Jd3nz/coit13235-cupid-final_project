@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Account settings | Cupid</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            color: #18202a;
+        }
+        main {
+            max-width: 680px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+        .back-link {
+            color: #344054;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .card {
+            margin-top: 24px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 6px;
+        }
+        .setting-option {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin: 20px 0 10px;
+            padding: 18px;
+            border: 1px solid #efd3da;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+        .setting-option input[type="checkbox"] {
+            width: auto;
+            margin-top: 3px;
+        }
+        .hint, .safety-note { line-height: 1.55; }
+        .hint { color: #667085; }
+        .safety-note {
+            margin-top: 22px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #fff1f3;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .success-message { background: #dcfce7; color: #166534; }
+        .error-message { background: #fee2e2; color: #991b1b; }
+        .info-message {
+            background: #eef4ff;
+            color: #1e3a8a;
+            margin-top: 12px;
+            padding: 10px 13px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .save-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: #18202a;
+            color: #ffffff;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .preference-field {
+            display: block;
+            margin: 18px 0;
+            font-weight: 700;
+        }
+        .preference-field input[type="number"],
+        .preference-field select {
+            display: block;
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #d0d5dd;
+            font: inherit;
+            background: #ffffff;
+        }
+        .preference-field input[type="range"] {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .range-value {
+            font-weight: 700;
+            color: #b02a5b;
+        }
+        .age-range-row {
+            display: flex;
+            gap: 12px;
+        }
+        .age-range-row .preference-field {
+            flex: 1;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/cupid.css}">
+</head>
+<body class="settings-page">
+<main>
+    <nav class="standalone-navigation" aria-label="Profile navigation">
+        <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
+        </a>
+        <a
+                class="back-link"
+                th:href="@{/profiles/{profileId}(profileId=${profile.id})}"
+        >
+            ← Back to profile
+        </a>
+    </nav>
+
+    <p
+            class="message success-message"
+            th:if="${successMessage}"
+            th:text="${successMessage}"
+    >
+        Preferences saved.
+    </p>
+    <p
+            class="message error-message"
+            th:if="${errorMessage}"
+            th:text="${errorMessage}"
+    >
+        Unable to save preferences.
+    </p>
+
+    <form
+            th:action="@{/profiles/{profileId}/settings(profileId=${profile.id})}"
+            method="post"
+    >
+        <section class="card">
+            <h1>Account settings</h1>
+            <p class="hint">
+                Cupid makes account deletion an intentional choice. The action
+                is only available after you enable it here and complete the
+                final confirmation process later.
+            </p>
+
+            <p class="error-message" th:unless="${globalAccountDeletionEnabled}">
+                Account deletion is currently disabled for all users by Cupid's
+                ethical setting.
+            </p>
+
+            <label class="setting-option" for="accountDeactivationEnabled">
+                <input
+                        id="accountDeactivationEnabled"
+                        type="checkbox"
+                        name="accountDeactivationEnabled"
+                        value="true"
+                        th:checked="${profile.accountDeactivationEnabled}"
+                        th:disabled="${!globalAccountDeletionEnabled}"
+                >
+                <span>Allow my account to be deleted</span>
+            </label>
+
+            <p class="hint">
+                Turning this on does not delete your account. It only makes the
+                final confirmation process available on your profile page.
+            </p>
+
+            <p class="safety-note">
+                If you later delete your account, Cupid removes your profile
+                from discovery but retains swipe and match records for data
+                integrity.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Swipe reminders</h2>
+            <p class="hint">
+                Cupid can send extra prompts to encourage you to keep swiping.
+                You can opt out of that pressure at any time.
+            </p>
+
+            <p class="info-message" th:if="${globalSwipeEncouragementEnabled}">
+                Cupid's app-wide swipe encouragement is currently switched on.
+            </p>
+            <p class="info-message" th:unless="${globalSwipeEncouragementEnabled}">
+                Cupid's app-wide swipe encouragement is currently switched off
+                for every user, so this preference has no effect right now.
+            </p>
+
+            <label class="setting-option" for="swipeEncouragementEnabled">
+                <input
+                        id="swipeEncouragementEnabled"
+                        type="checkbox"
+                        name="swipeEncouragementEnabled"
+                        value="true"
+                        th:checked="${profile.swipeEncouragementEnabled}"
+                >
+                <span>Show me swipe reminders</span>
+            </label>
+
+            <p class="hint">
+                Uncheck to opt out. Cupid will still show your matches, just
+                without additional nudges to swipe more.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Messaging reminders</h2>
+            <p class="hint">
+                Cupid can prompt you to send more messages to keep conversations
+                going. You can opt out of that pressure at any time.
+            </p>
+
+            <label class="setting-option" for="messageCoercionEnabled">
+                <input
+                        id="messageCoercionEnabled"
+                        type="checkbox"
+                        name="messageCoercionEnabled"
+                        value="true"
+                        th:checked="${profile.messageCoercionEnabled}"
+                >
+                <span>Show me messaging reminders</span>
+            </label>
+
+            <p class="hint">
+                Uncheck to opt out. Your existing conversations stay accessible
+                either way.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Discovery preferences</h2>
+            <p class="hint">
+                Control who can see your profile, in which language, and the
+                distance and age range Cupid uses when suggesting matches.
+            </p>
+
+            <label class="setting-option" for="showMeOnCupid">
+                <input
+                        id="showMeOnCupid"
+                        type="checkbox"
+                        name="showMeOnCupid"
+                        value="true"
+                        th:checked="${profile.showMeOnCupid}"
+                >
+                <span>Show me on Cupid</span>
+            </label>
+            <p class="hint">
+                Turning this off hides your profile from discovery. You can
+                still open your matches and continue any active conversations.
+            </p>
+
+            <label class="preference-field" for="preferredLanguage">
+                Preferred language
+                <select
+                        id="preferredLanguage"
+                        name="preferredLanguage"
+                >
+                    <option
+                            th:each="language : ${supportedLanguages}"
+                            th:value="${language}"
+                            th:text="${language}"
+                            th:selected="${language == profile.preferredLanguage}"
+                    >English</option>
+                </select>
+            </label>
+
+            <label class="preference-field" for="maxDistanceKm">
+                Maximum distance
+                <span class="range-value" id="maxDistanceKmValue"
+                      th:text="|${profile.maxDistanceKm} km|">80 km</span>
+                <input
+                        id="maxDistanceKm"
+                        type="range"
+                        name="maxDistanceKm"
+                        min="1"
+                        max="500"
+                        step="1"
+                        th:value="${profile.maxDistanceKm}"
+                        oninput="document.getElementById('maxDistanceKmValue').textContent = this.value + ' km';"
+                >
+            </label>
+
+            <div class="age-range-row">
+                <label class="preference-field" for="preferredMinAge">
+                    Minimum age
+                    <input
+                            id="preferredMinAge"
+                            type="number"
+                            name="preferredMinAge"
+                            min="18"
+                            max="120"
+                            th:value="${profile.preferredMinAge}"
+                    >
+                </label>
+                <label class="preference-field" for="preferredMaxAge">
+                    Maximum age
+                    <input
+                            id="preferredMaxAge"
+                            type="number"
+                            name="preferredMaxAge"
+                            min="18"
+                            max="120"
+                            th:value="${profile.preferredMaxAge}"
+                    >
+                </label>
+            </div>
+            <p class="hint">
+                Ages must be between 18 and 120. The minimum cannot exceed the
+                maximum.
+            </p>
+        </section>
+
+        <button class="save-button" type="submit">Save preferences</button>
+    </form>
+</main>
+</body>
+</html>
