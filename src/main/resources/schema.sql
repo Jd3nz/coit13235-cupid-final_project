@@ -43,6 +43,23 @@ CREATE TABLE IF NOT EXISTS matches (
     INDEX idx_matches_user_two (user_two_id)
 );
 
+-- FR_Messages_History: store messages between existing users.
+CREATE TABLE IF NOT EXISTS messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sender_id BIGINT NOT NULL,
+    receiver_id BIGINT NOT NULL,
+    message_text VARCHAR(2000) NOT NULL,
+    sent_at TIMESTAMP(6) NOT NULL,
+
+    CONSTRAINT fk_messages_sender
+        FOREIGN KEY (sender_id) REFERENCES users(id),
+
+    CONSTRAINT fk_messages_receiver
+        FOREIGN KEY (receiver_id) REFERENCES users(id),
+
+    INDEX idx_messages_conversation
+        (sender_id, receiver_id, sent_at, id)
+ );
 CREATE TABLE IF NOT EXISTS profile_pictures (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id),
