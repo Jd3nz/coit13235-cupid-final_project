@@ -18,6 +18,10 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class MessageService {
 
+    /**
+     * NFR_Input_Sanitise: matches the database column and browser limit so a
+     * crafted request cannot bypass the UI's maximum length.
+     */
     private static final int MAX_MESSAGE_LENGTH = 2000;
 
     private final MessageRepository messageRepository;
@@ -53,14 +57,9 @@ public class MessageService {
             );
         }
 
+        rejectSelfConversation(senderId, receiverId);
         User sender = requireActiveUser(senderId);
         User receiver = requireActiveUser(receiverId);
-
-        if (sender.getId().equals(receiver.getId())) {
-            throw new IllegalArgumentException(
-                    "Choose another user as the recipient."
-            );
-        }
 
         // Store plain text. The Thymeleaf page must escape it with th:text.
         Message message = new Message(sender, receiver, trimmedText);
@@ -69,9 +68,12 @@ public class MessageService {
 
     /**
      * Retrieves both directions of a conversation, oldest first.
-     * The controller must supply the current user's ID as viewerId.
+     * The controller must supply the current user's ID as viewerId. A
+     * self-conversation is rejected here as well as during sending so no route
+     * can present a profile as messaging itself.
      */
     public List<Message> getConversation(Long viewerId, Long otherUserId) {
+        rejectSelfConversation(viewerId, otherUserId);
         User viewer = requireActiveUser(viewerId);
         User otherUser = requireActiveUser(otherUserId);
 
@@ -91,5 +93,17 @@ public class MessageService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "User does not exist or is inactive."
                 ));
+    }
+
+    /**
+     * NFR_Input_Sanitise: this is enforced on the server for both GET and POST
+     * requests, because browser selectors and hidden form fields are editable.
+     */
+    private void rejectSelfConversation(Long senderId, Long receiverId) {
+        if (senderId != null && senderId.equals(receiverId)) {
+            throw new IllegalArgumentException(
+                    "Choose another user as the recipient."
+            );
+        }
     }
 }

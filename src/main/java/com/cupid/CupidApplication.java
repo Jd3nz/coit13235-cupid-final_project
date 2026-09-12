@@ -7,7 +7,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import com.cupid.profile.picture.config.ProfilePictureProperties;
 
-// Scan each team-owned component beneath the shared com.cupid namespace.
+/**
+ * Application composition root.
+ *
+ * Architecture: Spring scans the shared {@code com.cupid} namespace so the
+ * Profile, Matching, Messaging, and Picture components can collaborate while
+ * retaining separate controller and service responsibilities. Configuration
+ * classes are listed explicitly to keep assessment-critical ethical and upload
+ * settings outside business code.
+ */
 @SpringBootApplication
 @EnableConfigurationProperties({
     MatchingProperties.class,

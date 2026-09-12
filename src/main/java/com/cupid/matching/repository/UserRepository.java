@@ -18,6 +18,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.active = true order by u.id")
     List<User> findAllActive();
 
+    /**
+     * Discovery query: excludes the viewer, inactive profiles, and profiles
+     * the viewer has already swiped on. It deliberately does not use stored
+     * demo defaults until filtering is part of the matching requirement.
+     */
     @Query(value = """
             SELECT u.*
             FROM users u

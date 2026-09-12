@@ -61,11 +61,10 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute(
                     "successMessage",
                     "Profile created successfully. Add a photo to complete it."
-                    "Profile created successfully. Add a photo to complete it."
             );
 
-            return "redirect:/profiles/" + createdProfile.getId() + "#photo-upload";
-            return "redirect:/profiles/" + createdProfile.getId() + "#photo-upload";
+            return "redirect:/profiles/" + createdProfile.getId()
+                    + "/edit#profile-photos";
         } catch (ProfileException exception) {
             model.addAttribute("errorMessage", exception.getMessage());
             prepareEditModel(model, profileForm, null);
@@ -97,16 +96,8 @@ public class ProfileController {
                 "globalAccountDeletionEnabled",
                 globalAccountDeletionEnabled
         );
-        boolean globalAccountDeletionEnabled =
-                profileService.isAccountDeletionEnabled();
-        model.addAttribute(
-                "globalAccountDeletionEnabled",
-                globalAccountDeletionEnabled
-        );
         model.addAttribute(
                 "accountDeletionEnabled",
-                globalAccountDeletionEnabled
-                        && profile.get().isAccountDeactivationEnabled()
                 globalAccountDeletionEnabled
                         && profile.get().isAccountDeactivationEnabled()
         );
@@ -150,10 +141,6 @@ public class ProfileController {
                 profileService.isAccountDeletionEnabled()
         );
         model.addAttribute(
-                "globalSwipeEncouragementEnabled",
-                profileService.isSwipeEncouragementEnabled()
-        );
-        model.addAttribute(
                 "supportedLanguages",
                 ProfileService.SUPPORTED_LANGUAGES
         );
@@ -161,7 +148,9 @@ public class ProfileController {
     }
 
     /**
-     * Handles the full preference form: account-deletion opt-in, swipe encouragement opt-out, message-coercion opt-out, and non-functional discovery preferences
+     * Handles the account-deletion opt-in plus swipe and messaging ethics
+     * preferences. Discovery values are stored as demo preferences, but are
+     * not yet connected to matching behaviour.
      * FR_Profile_Keep_Ethics, FR_Swipe_More_Ethics, FR_Message_More_Ethics.
      */
     @PostMapping("/profiles/{profileId}/settings")
@@ -302,5 +291,18 @@ public class ProfileController {
                 "formAction",
                 profileId == null ? "/profiles" : "/profiles/" + profileId
         );
+
+        if (profileId != null) {
+            profileService.findActiveProfile(profileId)
+                    .ifPresent(profile -> model.addAttribute("profile", profile));
+            List<ProfilePicture> pictures = pictureService.listPictures(profileId);
+            model.addAttribute("pictures", pictures);
+            pictures.stream()
+                    .filter(ProfilePicture::isPrimaryPicture)
+                    .findFirst()
+                    .ifPresent(primary ->
+                            model.addAttribute("primaryPictureId", primary.getId())
+                    );
+        }
     }
 }

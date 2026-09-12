@@ -12,6 +12,10 @@ import java.time.OffsetDateTime;
 /**
  * Represents the minimum user information required by
  * the Cupid Matching component.
+ *
+ * Architecture: this is the shared profile entity used by Profile, Matching,
+ * Messaging, and Picture components. It keeps cross-component preferences in
+ * one table while each service owns its validation and workflow rules.
  */
 @Entity
 @Table(name = "users")
@@ -26,14 +30,19 @@ public class User {
     private int age;
     @Column(length = 500)
     private String bio;
+    // Soft deletion retains records needed for swipe, match, and message history.
     @Column(nullable = false)
     private boolean active;
+    // FR_Profile_Keep_Ethics: per-profile opt-in before the protected delete flow.
     @Column(name = "account_deactivation_enabled", nullable = false)
     private boolean accountDeactivationEnabled;
+    // FR_Swipe_More_Ethics: individual opt-out layered under the app-wide switch.
     @Column(name = "swipe_encouragement_enabled", nullable = false)
     private boolean swipeEncouragementEnabled = true;
+    // FR_Message_More_Ethics: individual opt-out for messaging reminders.
     @Column(name = "message_coercion_enabled", nullable = false)
     private boolean messageCoercionEnabled = true;
+    // Stored demo defaults; Matching does not apply them to suggestions yet.
     @Column(name = "show_me_on_cupid", nullable = false)
     private boolean showMeOnCupid = true;
     @Column(name = "preferred_language", nullable = false, length = 30)
@@ -44,6 +53,7 @@ public class User {
     private int preferredMinAge = 18;
     @Column(name = "preferred_max_age", nullable = false)
     private int preferredMaxAge = 60;
+    // Database-managed creation time provides persistent profile traceability.
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 

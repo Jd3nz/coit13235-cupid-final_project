@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 
+/**
+ * Web adapter for the swipe-history view.
+ *
+ * Supports FR_Swipe_History and FR_Web_UI. The history itself is retrieved by
+ * the service so the controller remains free of persistence decisions.
+ */
 @Controller
 public class SwipeHistoryController {
 

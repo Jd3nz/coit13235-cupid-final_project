@@ -26,6 +26,10 @@ public class SwipeHistoryService {
         this.swipeHistoryRepository = swipeHistoryRepository;
     }
 
+    /**
+     * FR_Swipe_History: maps persistent history to lightweight view data,
+     * avoiding lazy-loading details from the Thymeleaf page.
+     */
     public List<SwipeHistorySummary> findHistory(Long userId) {
         if (userId == null || userId <= 0) {
             return List.of();

@@ -16,6 +16,9 @@ import java.time.OffsetDateTime;
 
 /**
  * A historical swipe decision for one directed pair of users.
+ *
+ * FR_Swipe_History: records an immutable audit entry every time the current
+ * swipe state changes, including later reversals from Like to Dislike.
  */
 @Entity
 @Table(name = "swipe_history")

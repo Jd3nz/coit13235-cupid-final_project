@@ -118,8 +118,6 @@
     </style>
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
     <style>
-        /* Account Settings keeps Tanzim's preference controls, while matching
-           Cupid’s shared profile and messaging visual system. */
         .settings-page main {
             width: min(calc(100% - 48px), 920px);
             max-width: 920px;
@@ -246,6 +244,44 @@
             border-radius: 12px;
         }
         .settings-page .range-value { color: #a84c64; }
+        .settings-page .verification-preview {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-color: rgba(10, 148, 166, 0.24);
+            background: linear-gradient(135deg, #f8ffff, #fff8fa);
+        }
+        .settings-page .verification-icon {
+            display: grid;
+            flex: 0 0 56px;
+            width: 56px;
+            height: 56px;
+            place-items: center;
+            border: 1px solid rgba(10, 148, 166, 0.30);
+            border-radius: 50%;
+            background: #e6fbfd;
+            color: #05728e;
+            font-size: 1.65rem;
+            font-weight: 900;
+        }
+        .settings-page .verification-preview h2 { margin: 4px 0 7px; }
+        .settings-page .verification-preview p:last-child {
+            margin: 0;
+            color: #536476;
+            line-height: 1.5;
+        }
+        .settings-page .preview-badge {
+            display: inline-flex;
+            margin: 0;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(10, 148, 166, 0.12);
+            color: #05728e;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
         .settings-page .save-button {
             width: auto;
             justify-self: end;
@@ -262,6 +298,7 @@
             .settings-page .navigation-links { order: 3; flex: 1 1 100%; flex-wrap: nowrap; overflow-x: auto; }
             .settings-page .viewer-status { margin-left: auto; padding-left: 10px; }
             .settings-page .age-range-row { flex-direction: column; gap: 0; }
+            .settings-page .verification-preview { align-items: flex-start; }
             .settings-page .save-button { width: 100%; }
         }
     </style>
@@ -274,7 +311,9 @@
         </a>
         <div class="navigation-links">
             <a class="navigation-link"
-               th:href="@{/profiles/{profileId}(profileId=${profile.id})}">← Back to Profile</a>
+               th:href="@{/profiles/{profileId}(profileId=${profile.id})}">View Profile</a>
+            <a class="navigation-link"
+               th:href="@{/profiles/{profileId}/edit(profileId=${profile.id})}">Edit Profile</a>
             <span class="navigation-link current-link" aria-current="page">Account Settings</span>
         </div>
         <span class="viewer-status">
@@ -301,7 +340,6 @@
     <header class="settings-hero">
         <p class="eyebrow">PROFILE PREFERENCES</p>
         <h1>Account settings</h1>
-        <p>Choose what feels right for you, including reminder preferences and how Cupid presents your profile.</p>
     </header>
 
     <form
@@ -309,103 +347,15 @@
             method="post"
     >
         <section class="card">
-            <h2>Account safety</h2>
-            <p class="hint">
-                Cupid makes account deletion an intentional choice. The action
-                is only available after you enable it here and complete the
-                final confirmation process later.
-            </p>
-
-            <p class="error-message" th:unless="${globalAccountDeletionEnabled}">
-                Account deletion is currently disabled for all users by Cupid's
-                ethical setting.
-            </p>
-
-            <label class="setting-option" for="accountDeactivationEnabled">
-                <input
-                        id="accountDeactivationEnabled"
-                        type="checkbox"
-                        name="accountDeactivationEnabled"
-                        value="true"
-                        th:checked="${profile.accountDeactivationEnabled}"
-                        th:disabled="${!globalAccountDeletionEnabled}"
-                >
-                <span>Allow my account to be deleted</span>
-            </label>
-
-            <p class="hint">
-                Turning this on does not delete your account. It only makes the
-                final confirmation process available on your profile page.
-            </p>
-
-            <p class="safety-note">
-                If you later delete your account, Cupid removes your profile
-                from discovery but retains swipe and match records for data
-                integrity.
-            </p>
-        </section>
-
-        <section class="card">
-            <h2>Swipe reminders</h2>
-            <p class="hint">
-                Cupid can send extra prompts to encourage you to keep swiping.
-                You can opt out of that pressure at any time.
-            </p>
-
-            <p class="info-message" th:if="${globalSwipeEncouragementEnabled}">
-                Cupid's app-wide swipe encouragement is currently switched on.
-            </p>
-            <p class="info-message" th:unless="${globalSwipeEncouragementEnabled}">
-                Cupid's app-wide swipe encouragement is currently switched off
-                for every user, so this preference has no effect right now.
-            </p>
-
-            <label class="setting-option" for="swipeEncouragementEnabled">
-                <input
-                        id="swipeEncouragementEnabled"
-                        type="checkbox"
-                        name="swipeEncouragementEnabled"
-                        value="true"
-                        th:checked="${profile.swipeEncouragementEnabled}"
-                >
-                <span>Show me swipe reminders</span>
-            </label>
-
-            <p class="hint">
-                Uncheck to opt out. Cupid will still show your matches, just
-                without additional nudges to swipe more.
-            </p>
-        </section>
-
-        <section class="card">
-            <h2>Messaging reminders</h2>
-            <p class="hint">
-                Cupid can prompt you to send more messages to keep conversations
-                going. You can opt out of that pressure at any time.
-            </p>
-
-            <label class="setting-option" for="messageCoercionEnabled">
-                <input
-                        id="messageCoercionEnabled"
-                        type="checkbox"
-                        name="messageCoercionEnabled"
-                        value="true"
-                        th:checked="${profile.messageCoercionEnabled}"
-                >
-                <span>Show me messaging reminders</span>
-            </label>
-
-            <p class="hint">
-                Uncheck to opt out. Your existing conversations stay accessible
-                either way.
-            </p>
-        </section>
-
-        <section class="card">
             <h2>Discovery preferences</h2>
             <p class="hint">
-                Control who can see your profile, in which language, and the
-                distance and age range Cupid uses when suggesting matches.
+                Control who can see your profile, your preferred language, and
+                the distance and age range Cupid can use when suggesting matches.
+            </p>
+
+            <p class="info-message">
+                These are Cupid's current demo defaults. They are display-only
+                and are not yet used to filter profile suggestions.
             </p>
 
             <label class="setting-option" for="showMeOnCupid">
@@ -418,17 +368,15 @@
                 >
                 <span>Show me on Cupid</span>
             </label>
+
             <p class="hint">
                 Turning this off hides your profile from discovery. You can
-                still open your matches and continue any active conversations.
+                still open your matches and continue active conversations.
             </p>
 
             <label class="preference-field" for="preferredLanguage">
                 Preferred language
-                <select
-                        id="preferredLanguage"
-                        name="preferredLanguage"
-                >
+                <select id="preferredLanguage" name="preferredLanguage">
                     <option
                             th:each="language : ${supportedLanguages}"
                             th:value="${language}"
@@ -440,8 +388,11 @@
 
             <label class="preference-field" for="maxDistanceKm">
                 Maximum distance
-                <span class="range-value" id="maxDistanceKmValue"
-                      th:text="|${profile.maxDistanceKm} km|">80 km</span>
+                <span
+                        id="maxDistanceKmValue"
+                        class="range-value"
+                        th:text="|${profile.maxDistanceKm} km|"
+                >80 km</span>
                 <input
                         id="maxDistanceKm"
                         type="range"
@@ -478,9 +429,105 @@
                     >
                 </label>
             </div>
+
             <p class="hint">
-                Ages must be between 18 and 120. The minimum cannot exceed the
-                maximum.
+                Ages must be between 18 and 120. The minimum cannot exceed the maximum.
+            </p>
+        </section>
+
+        <!-- Visual-only trust prompt; it intentionally has no verification workflow yet. -->
+        <section class="card verification-preview" aria-labelledby="verification-title">
+            <div class="verification-icon" aria-hidden="true">✓</div>
+            <div>
+                <p class="preview-badge">This is a preview only and does not verify
+                    identity or change account settings.</p>
+                <h2 id="verification-title">Verify your profile</h2>
+                <p>
+                    Photo verification will help people recognise a real Cupid
+                    profile.
+                </p>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Account Safety</h2>
+            <p class="hint">
+                Cupid makes account deletion an intentional choice. The action
+                is only available after you enable it here and complete the
+                final confirmation process later.
+            </p>
+
+            <p class="error-message" th:unless="${globalAccountDeletionEnabled}">
+                Account deletion is currently disabled for all users by Cupid's
+                ethical setting.
+            </p>
+
+            <label class="setting-option" for="accountDeactivationEnabled">
+                <input
+                        id="accountDeactivationEnabled"
+                        type="checkbox"
+                        name="accountDeactivationEnabled"
+                        value="true"
+                        th:checked="${profile.accountDeactivationEnabled}"
+                        th:disabled="${!globalAccountDeletionEnabled}"
+                >
+                <span>Allow my account to be deleted</span>
+            </label>
+
+            <p class="hint">
+                Turning this on does not delete your account. It only makes the
+                final confirmation process available on your profile page.
+            </p>
+
+            <p class="safety-note">
+                If you later delete your account, Cupid removes your profile
+                from discovery but retains swipe and match records for data
+                integrity.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Swipe Reminder Notifications</h2>
+            <p class="hint">
+                Cupid can send extra prompts to encourage you to keep swiping.
+                You can opt out of that pressure at any time.
+            </p>
+
+            <label class="setting-option" for="swipeEncouragementEnabled">
+                <input
+                        id="swipeEncouragementEnabled"
+                        type="checkbox"
+                        name="swipeEncouragementEnabled"
+                        value="true"
+                        th:checked="${profile.swipeEncouragementEnabled}"
+                >
+                <span>Show me swipe reminders</span>
+            </label>
+
+            <p class="hint">Uncheck to opt out.</p>
+        </section>
+
+        <section class="card">
+            <h2>Message notification</h2>
+            <p class="hint">
+                Cupid can prompt you to send more messages to keep conversations
+                going. You can opt out of that pressure at any time.
+            </p>
+
+            <label class="setting-option" for="messageCoercionEnabled">
+                <input
+                        id="messageCoercionEnabled"
+                        type="checkbox"
+                        name="messageCoercionEnabled"
+                        value="true"
+                        th:checked="${profile.messageCoercionEnabled}"
+                >
+                <span>Show message notifications</span>
+            </label>
+
+            <p class="hint">
+                Uncheck to opt out. Your existing conversations stay accessible
+                either way.
             </p>
         </section>
 

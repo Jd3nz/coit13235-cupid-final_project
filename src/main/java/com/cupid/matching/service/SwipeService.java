@@ -29,20 +29,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SwipeService {
 
+    // Repositories separate current state, immutable audit history, and matches.
     private final UserRepository userRepository;
-        private final CurrentSwipeRepository currentSwipeRepository;
-        private final SwipeHistoryRepository swipeHistoryRepository;
-        private final MatchRepository matchRepository;
+    private final CurrentSwipeRepository currentSwipeRepository;
+    private final SwipeHistoryRepository swipeHistoryRepository;
+    private final MatchRepository matchRepository;
 
     public SwipeService(
             UserRepository userRepository,
-                        CurrentSwipeRepository currentSwipeRepository,
-                        SwipeHistoryRepository swipeHistoryRepository,
-                        MatchRepository matchRepository
+            CurrentSwipeRepository currentSwipeRepository,
+            SwipeHistoryRepository swipeHistoryRepository,
+            MatchRepository matchRepository
     ) {
         this.userRepository = userRepository;
-                this.currentSwipeRepository = currentSwipeRepository;
-                this.swipeHistoryRepository = swipeHistoryRepository;
+        this.currentSwipeRepository = currentSwipeRepository;
+        this.swipeHistoryRepository = swipeHistoryRepository;
         this.matchRepository = matchRepository;
     }
 
@@ -82,6 +83,7 @@ public class SwipeService {
                 target.getId()
         );
 
+        // CurrentSwipe is the latest decision; it is updated instead of duplicated.
         CurrentSwipe currentSwipe = currentSwipeRepository
                 .findBySwiperIdAndTargetUserId(
                         viewer.getId(),
@@ -95,6 +97,7 @@ public class SwipeService {
         currentSwipe.setDecision(request.getDecision());
         currentSwipeRepository.save(currentSwipe);
 
+        // SwipeHistory is append-only evidence for FR_Swipe_History.
         swipeHistoryRepository.save(new SwipeHistory(
                 viewer,
                 target,
@@ -114,6 +117,7 @@ public class SwipeService {
             return SwipeResult.recorded();
         }
 
+        // Canonical ordering makes the database uniqueness rule direction-independent.
         User userOne = viewer.getId() < target.getId() ? viewer : target;
         User userTwo = viewer.getId() < target.getId() ? target : viewer;
 
@@ -133,6 +137,7 @@ public class SwipeService {
     }
 
     private void validateRequest(SwipeRequest request) {
+        // This deliberately repeats browser validation to protect direct HTTP calls.
         if (request == null) {
             throw new InvalidSwipeException(
                     "The swipe request cannot be empty."

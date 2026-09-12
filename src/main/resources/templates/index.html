@@ -185,18 +185,10 @@
         </a>
         <h1>Find your spark</h1>
 
-        <div class="status">
-            Swipe encouragement:
-            <span
-                th:text="${
-                    swipeEncouragementEnabled == true
-                    ? 'Enabled'
-                    : 'Disabled'
-                }"
-            >
-                Disabled
-            </span>
-        </div>
+        <p class="demo-selector-note">
+            Choose a demo profile below to explore Cupid. This is a profile
+            selector for the assessment demo, not a sign-in or login area.
+        </p>
 
         <a class="create-profile-link" th:href="@{/profiles/new}">
             Create your profile

@@ -202,6 +202,9 @@ CREATE TABLE IF NOT EXISTS messages (
     CONSTRAINT fk_messages_receiver
         FOREIGN KEY (receiver_id) REFERENCES users(id),
 
+    -- Defence in depth: MessageService also rejects a self-conversation.
+    CONSTRAINT chk_messages_not_self CHECK (sender_id <> receiver_id),
+
     INDEX idx_messages_conversation
         (sender_id, receiver_id, sent_at, id)
  );

@@ -26,6 +26,11 @@ public class ProfilePictureController {
         this.pictureService = pictureService;
     }
 
+    /**
+     * FR_Profile_Picture: accepts an upload and returns to the photo manager
+     * rather than the View Profile page, so the user can immediately select a
+     * primary picture or remove an image.
+     */
     @PostMapping("/profiles/{profileId}/pictures")
     public String uploadPicture(
             @PathVariable Long profileId,
@@ -45,7 +50,7 @@ public class ProfilePictureController {
             );
         }
 
-        return "redirect:/profiles/" + profileId;
+        return "redirect:/profiles/" + profileId + "/edit#profile-photos";
     }
 
     /**
@@ -85,7 +90,7 @@ public class ProfilePictureController {
             );
         }
 
-        return "redirect:/profiles/" + profileId;
+        return "redirect:/profiles/" + profileId + "/edit#profile-photos";
     }
 
     @PostMapping("/profiles/{profileId}/pictures/{pictureId}/delete")
@@ -107,6 +112,6 @@ public class ProfilePictureController {
             );
         }
 
-        return "redirect:/profiles/" + profileId;
+        return "redirect:/profiles/" + profileId + "/edit#profile-photos";
     }
 }

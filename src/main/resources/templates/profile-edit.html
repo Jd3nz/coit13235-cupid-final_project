@@ -69,21 +69,246 @@
             cursor: pointer;
         }
         .submit-button:hover { background: #303a47; }
+        .success-message {
+            margin: 18px 0;
+            padding: 12px;
+            border-radius: 10px;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 700;
+        }
+        .photo-manager {
+            margin-top: 30px !important;
+            overflow: hidden;
+            border: 1px solid #f0c5ce !important;
+            background: linear-gradient(145deg, #ffffff, #fff8f9);
+            scroll-margin-top: 24px;
+        }
+        .photo-manager::before {
+            display: block;
+            width: 92px;
+            height: 6px;
+            margin: -27px 0 25px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #A84C64, #F2AAB7);
+            content: "";
+        }
+        .photo-section-heading { margin-bottom: 22px; }
+        .photo-manager h2 { margin: 4px 0 8px; }
+        .photo-kicker {
+            margin: 0;
+            color: #A84C64;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+        }
+        .photo-gallery { display: grid; gap: 16px; }
+        .primary-photo { position: relative; }
+        .primary-photo img {
+            width: 100%;
+            max-height: 380px;
+            border-radius: 16px;
+            object-fit: cover;
+        }
+        .primary-photo-label, .main-photo-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: #011027;
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+        .primary-photo-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+        }
+        .photo-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+            gap: 12px;
+        }
+        .photo-thumbnail {
+            position: relative;
+            padding: 8px;
+            border: 1px solid #e4d3d8;
+            border-radius: 12px;
+            background: #fffafb;
+        }
+        .photo-thumbnail img {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .photo-actions {
+            display: grid;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .photo-actions button, .upload-button {
+            min-height: 38px;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .make-primary-button {
+            border: 1px solid #05728E;
+            background: #ffffff;
+            color: #05728E;
+        }
+        .remove-photo-button {
+            border: 1px solid #A84C64;
+            background: #fff4f6;
+            color: #A84C64;
+        }
+        .main-photo-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: #0A94A6;
+        }
+        .upload-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .upload-form input[type="file"] { flex: 1 1 230px; }
+        .upload-button {
+            padding: 0 16px;
+            border: 0;
+            background: #011027;
+            color: #ffffff;
+        }
+        @media (max-width: 540px) {
+            .upload-form { align-items: stretch; }
+            .upload-button { width: 100%; }
+        }
+        .profile-editor-page .top-navigation {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 26px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 14px 35px rgba(1, 16, 39, 0.08);
+        }
+        .profile-editor-page .top-navigation .brand-logo {
+            display: inline-flex;
+            flex: 0 0 52px;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            overflow: hidden;
+            border: 2px solid rgba(242, 170, 183, 0.56);
+            border-radius: 50%;
+            background: #fff8f9;
+            box-shadow: 0 5px 14px rgba(1, 16, 39, 0.12);
+        }
+        .profile-editor-page .top-navigation .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.58);
+        }
+        .profile-editor-page .top-navigation .navigation-links {
+            display: flex;
+            flex: 1 1 auto;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .profile-editor-page .top-navigation .navigation-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 8px 14px;
+            border: 1px solid rgba(5, 114, 142, 0.14);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #011027;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .profile-editor-page .top-navigation .current-link {
+            border-color: rgba(168, 76, 100, 0.22);
+            background: rgba(242, 170, 183, 0.20);
+            color: #a84c64;
+        }
+        .profile-editor-page .viewer-status {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: baseline;
+            gap: 7px;
+            margin-left: auto;
+            padding: 3px 0 3px 16px;
+            border-left: 1px solid rgba(5, 114, 142, 0.22);
+            color: #536476;
+            font-size: 0.86rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .profile-editor-page .viewer-status-label {
+            color: #536476;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+        .profile-editor-page .viewer-status-name { color: #a84c64; font-size: 0.96rem; font-weight: 850; }
+        @media (max-width: 700px) {
+            .profile-editor-page .top-navigation { flex-wrap: wrap; padding: 10px; }
+            .profile-editor-page .top-navigation .navigation-links { order: 3; flex: 1 1 100%; flex-wrap: nowrap; overflow-x: auto; }
+            .profile-editor-page .viewer-status { margin-left: auto; padding-left: 10px; }
+        }
     </style>
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
 </head>
 <body class="profile-editor-page">
 <main>
-    <nav class="standalone-navigation" aria-label="Profile navigation">
+    <nav class="standalone-navigation" aria-label="Profile navigation" th:if="${isNew}">
         <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
             <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
         </a>
-        <a class="back-link" th:if="${isNew}" th:href="@{/}">← Back to Cupid</a>
-        <a
-                class="back-link"
-                th:unless="${isNew}"
-                th:href="@{/profiles/{profileId}(profileId=${profileId})}"
-        >← Back to profile</a>
+        <a class="back-link demo-return" th:href="@{/}"
+           aria-label="Return to profile demo" title="Return to profile demo">
+            <svg class="demo-return-icon" aria-hidden="true" viewBox="0 0 24 24">
+                <path class="demo-return-arrow" d="M8 8 4 12l4 4m-4-4h9"/>
+                <circle class="demo-return-person" cx="17" cy="8" r="3"/>
+                <path class="demo-return-person" d="M12 20c.45-3.25 2.14-5 5-5s4.55 1.75 5 5"/>
+            </svg>
+        </a>
+    </nav>
+
+    <nav class="top-navigation" aria-label="Manage profile navigation" th:unless="${isNew}">
+        <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
+        </a>
+        <div class="navigation-links">
+            <a
+                    class="navigation-link"
+                    th:href="@{/profiles/{profileId}(profileId=${profileId})}"
+            >View Profile</a>
+            <span class="navigation-link current-link" aria-current="page">Edit Profile</span>
+            <a
+                    class="navigation-link"
+                    th:href="@{/profiles/{profileId}/settings(profileId=${profileId})}"
+            >Account Settings</a>
+        </div>
+        <span class="viewer-status">
+            <span class="viewer-status-label">Viewing as</span>
+            <span class="viewer-status-name" th:text="${profile.displayName}">Cupid profile</span>
+        </span>
     </nav>
 
     <section class="card">
@@ -91,9 +316,17 @@
             Edit your profile
         </h1>
 
-        <p>
-            Your details are used to show an active Cupid profile. Images and
-            shared preferences are managed by the Profile Pictures component.
+        <p th:if="${isNew}">
+            Start with your name, age, and bio. Once your profile is saved, you
+            can add photos from this page.
+        </p>
+
+        <p
+                class="success-message"
+                th:if="${successMessage}"
+                th:text="${successMessage}"
+        >
+            Profile saved.
         </p>
 
         <p
@@ -105,6 +338,7 @@
         </p>
 
         <form
+                id="profile-details-form"
                 th:action="${formAction}"
                 th:object="${profileForm}"
                 method="post"
@@ -161,13 +395,84 @@
                 Invalid bio.
             </p>
 
-            <button class="submit-button" type="submit">
-                <span th:text="${isNew} ? 'Create profile' : 'Save profile'">
-                    Save profile
-                </span>
+            <button class="submit-button" type="submit" th:if="${isNew}">
+                Create profile
             </button>
         </form>
     </section>
+
+    <section id="profile-photos" class="card photo-manager" th:unless="${isNew}">
+        <div class="photo-section-heading">
+            <p class="photo-kicker">PROFILE MEDIA</p>
+            <h2>Upload Photos</h2>
+            <p class="help-text">
+                Add, remove, or choose your main profile photo. Uploads are checked
+                before being stored securely with your Cupid profile.
+            </p>
+        </div>
+
+        <div class="photo-gallery" th:if="${pictures != null and !pictures.isEmpty()}">
+            <div class="primary-photo">
+                <span class="primary-photo-label">Main profile photo</span>
+                <img
+                        th:src="@{/profiles/{profileId}/pictures/{pictureId}
+                                (profileId=${profileId}, pictureId=${primaryPictureId})}"
+                        alt="Primary profile photo"
+                >
+            </div>
+            <div class="photo-thumbnails">
+                <div class="photo-thumbnail" th:each="pic : ${pictures}">
+                    <span class="main-photo-badge" th:if="${pic.primaryPicture}">Main</span>
+                    <img
+                            th:src="@{/profiles/{profileId}/pictures/{pictureId}
+                                    (profileId=${profileId}, pictureId=${pic.id})}"
+                            alt="Profile photo"
+                    >
+                    <div class="photo-actions">
+                        <form
+                                th:action="@{/profiles/{profileId}/pictures/{pictureId}/primary
+                                            (profileId=${profileId}, pictureId=${pic.id})}"
+                                method="post"
+                                th:unless="${pic.primaryPicture}"
+                        >
+                            <button class="make-primary-button" type="submit">Make main photo</button>
+                        </form>
+                        <form
+                                th:action="@{/profiles/{profileId}/pictures/{pictureId}/delete
+                                            (profileId=${profileId}, pictureId=${pic.id})}"
+                                method="post"
+                        >
+                            <button class="remove-photo-button" type="submit">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="help-text" th:if="${pictures == null or pictures.isEmpty()}">
+            You have not added a photo yet. Choose one that helps people
+            recognise you.
+        </p>
+
+        <form
+                class="upload-form"
+                th:action="@{/profiles/{profileId}/pictures(profileId=${profileId})}"
+                method="post"
+                enctype="multipart/form-data"
+        >
+            <input type="file" name="file" accept="image/jpeg,image/png,image/webp" required>
+            <button class="upload-button" type="submit">Upload photo</button>
+        </form>
+        <p class="help-text">
+            Add up to six JPEG, PNG, or WebP images. Each image can be up to 5 MB.
+        </p>
+    </section>
+
+    <div class="profile-save-area" th:unless="${isNew}">
+        <button class="submit-button" type="submit" form="profile-details-form">
+            Save profile
+        </button>
+    </div>
 </main>
 </body>
 </html>
