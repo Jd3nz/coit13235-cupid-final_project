@@ -10,6 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 
+/**
+ * Web adapter for a selected profile's mutual-match list.
+ *
+ * Architecture: delegates summary construction to {@link MatchService} and
+ * leaves this class responsible for HTTP routing and Thymeleaf model state.
+ * Supports FR_Match and FR_Web_UI.
+ */
 @Controller
 public class MatchController {
 

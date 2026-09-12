@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "cupid.matching")
 public class MatchingProperties {
 
-    private boolean swipeEncouragementEnabled = false;
+    private boolean swipeEncouragementEnabled = true;
 
     public boolean isSwipeEncouragementEnabled() {
         return swipeEncouragementEnabled;

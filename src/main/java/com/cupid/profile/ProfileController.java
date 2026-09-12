@@ -21,7 +21,8 @@ import java.util.Optional;
  * Thymeleaf interface for the Profile lifecycle.
  *
  * Supports: FR_Profile, FR_Profile_Fetch, FR_Profile_Keep_Ethics,
- * FR_Profile_Picture, FR_Web_UI, NFR_Input_Sanitise, and NFR_Traceability.
+ * FR_Profile_Picture, FR_Swipe_More_Ethics, FR_Message_More_Ethics,
+ * FR_Web_UI, NFR_Input_Sanitise, and NFR_Traceability.
  */
 @Controller
 public class ProfileController {
@@ -62,7 +63,8 @@ public class ProfileController {
                     "Profile created successfully. Add a photo to complete it."
             );
 
-            return "redirect:/profiles/" + createdProfile.getId() + "#photo-upload";
+            return "redirect:/profiles/" + createdProfile.getId()
+                    + "/edit#profile-photos";
         } catch (ProfileException exception) {
             model.addAttribute("errorMessage", exception.getMessage());
             prepareEditModel(model, profileForm, null);
@@ -113,8 +115,9 @@ public class ProfileController {
     }
 
     /**
-     * FR_Profile_Keep_Ethics: a user-facing preference screen makes account
-     * account deletion difficult but not impossible.
+     * FR_Profile_Keep_Ethics, FR_Swipe_More_Ethics, FR_Message_More_Ethics:
+     * - a single Account Settings page that hosts every ethics preference
+     * - plus non-functional discovery preferences (visibility, language, distance, age range).
      */
     @GetMapping("/profiles/{profileId}/settings")
     public String accountSettings(
@@ -137,13 +140,30 @@ public class ProfileController {
                 "globalAccountDeletionEnabled",
                 profileService.isAccountDeletionEnabled()
         );
+        model.addAttribute(
+                "supportedLanguages",
+                ProfileService.SUPPORTED_LANGUAGES
+        );
         return "account-settings";
     }
 
+    /**
+     * Handles the account-deletion opt-in plus swipe and messaging ethics
+     * preferences. Discovery values are stored as demo preferences, but are
+     * not yet connected to matching behaviour.
+     * FR_Profile_Keep_Ethics, FR_Swipe_More_Ethics, FR_Message_More_Ethics.
+     */
     @PostMapping("/profiles/{profileId}/settings")
     public String updateAccountSettings(
             @PathVariable Long profileId,
             @RequestParam(defaultValue = "false") boolean accountDeactivationEnabled,
+            @RequestParam(defaultValue = "false") boolean swipeEncouragementEnabled,
+            @RequestParam(defaultValue = "false") boolean messageCoercionEnabled,
+            @RequestParam(defaultValue = "false") boolean showMeOnCupid,
+            @RequestParam(defaultValue = "English") String preferredLanguage,
+            @RequestParam(defaultValue = "80") int maxDistanceKm,
+            @RequestParam(defaultValue = "18") int preferredMinAge,
+            @RequestParam(defaultValue = "60") int preferredMaxAge,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -151,11 +171,25 @@ public class ProfileController {
                     profileId,
                     accountDeactivationEnabled
             );
+            profileService.updateSwipeEncouragementPreference(
+                    profileId,
+                    swipeEncouragementEnabled
+            );
+            profileService.updateMessageCoercionPreference(
+                    profileId,
+                    messageCoercionEnabled
+            );
+            profileService.updateDiscoveryPreferences(
+                    profileId,
+                    showMeOnCupid,
+                    preferredLanguage,
+                    maxDistanceKm,
+                    preferredMinAge,
+                    preferredMaxAge
+            );
             redirectAttributes.addFlashAttribute(
                     "successMessage",
-                    accountDeactivationEnabled
-                            ? "Account deletion is now available after final confirmation."
-                            : "Account deletion has been turned off."
+                    "Your preferences have been saved."
             );
             return "redirect:/profiles/" + profileId + "/settings";
         } catch (ProfileException exception) {
@@ -163,7 +197,7 @@ public class ProfileController {
                     "errorMessage",
                     exception.getMessage()
             );
-            return "redirect:/profiles/" + profileId;
+            return "redirect:/profiles/" + profileId + "/settings";
         }
     }
 
@@ -257,5 +291,18 @@ public class ProfileController {
                 "formAction",
                 profileId == null ? "/profiles" : "/profiles/" + profileId
         );
+
+        if (profileId != null) {
+            profileService.findActiveProfile(profileId)
+                    .ifPresent(profile -> model.addAttribute("profile", profile));
+            List<ProfilePicture> pictures = pictureService.listPictures(profileId);
+            model.addAttribute("pictures", pictures);
+            pictures.stream()
+                    .filter(ProfilePicture::isPrimaryPicture)
+                    .findFirst()
+                    .ifPresent(primary ->
+                            model.addAttribute("primaryPictureId", primary.getId())
+                    );
+        }
     }
 }

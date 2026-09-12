@@ -199,7 +199,14 @@
             <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
         </a>
         <div class="navigation-links">
-            <a class="navigation-link" th:href="@{/}">← Back to Cupid</a>
+            <a class="navigation-link demo-return" th:href="@{/}"
+               aria-label="Return to profile demo" title="Return to profile demo">
+                <svg class="demo-return-icon" aria-hidden="true" viewBox="0 0 24 24">
+                    <path class="demo-return-arrow" d="M8 8 4 12l4 4m-4-4h9"/>
+                    <circle class="demo-return-person" cx="17" cy="8" r="3"/>
+                    <path class="demo-return-person" d="M12 20c.45-3.25 2.14-5 5-5s4.55 1.75 5 5"/>
+                </svg>
+            </a>
             <a class="navigation-link"
                th:href="@{/profiles/{profileId}(profileId=${viewer.id})}">View Profile</a>
             <a class="navigation-link" th:href="@{/discover(userId=${viewer.id})}">Discover</a>

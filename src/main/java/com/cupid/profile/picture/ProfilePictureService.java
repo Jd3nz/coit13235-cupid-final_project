@@ -28,6 +28,7 @@ import java.util.Optional;
 public class ProfilePictureService {
 
     private static final byte[] JPEG_MAGIC = { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF };
+    // File signatures support content validation independently of a file name.
     private static final byte[] PNG_MAGIC =
             { (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
     private static final byte[] WEBP_RIFF = { 0x52, 0x49, 0x46, 0x46 };

@@ -24,6 +24,10 @@ public class MatchService {
         this.matchRepository = matchRepository;
     }
 
+    /**
+     * FR_Match: returns display-ready data rather than JPA entities so the web
+     * UI does not need to know how a canonical match pair is stored.
+     */
     public List<MatchSummary> findActiveMatches(Long userId) {
         if (userId == null || userId <= 0) {
             return List.of();
@@ -36,6 +40,7 @@ public class MatchService {
     }
 
     private MatchSummary toSummary(Match match, Long viewerId) {
+        // Match stores user IDs in canonical order; this chooses the other person.
         User matchedUser = match.getUserOne().getId().equals(viewerId)
                 ? match.getUserTwo()
                 : match.getUserOne();

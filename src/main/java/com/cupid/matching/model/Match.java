@@ -17,6 +17,9 @@ import java.time.OffsetDateTime;
 
 /**
  * A match between two users stored in ascending user ID order.
+ *
+ * Architecture: canonical ordering and the unique pair constraint prevent the
+ * reciprocal Like flow from creating duplicate matches.
  */
 @Entity
 @Table(name = "matches", uniqueConstraints = @UniqueConstraint(

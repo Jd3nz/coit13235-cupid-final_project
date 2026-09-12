@@ -127,6 +127,21 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
     color: var(--cupid-rose);
 }
 
+/* Visible behaviour for the two opt-out ethics settings. Each prompt is
+   rendered only when the selected profile has kept that preference enabled. */
+.ethics-reminder {
+    border: 1px solid rgba(10, 148, 166, 0.24);
+    background: rgba(10, 148, 166, 0.09);
+    color: var(--cupid-navy);
+    line-height: 1.5;
+}
+
+.ethics-reminder strong {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--cupid-blue);
+}
+
 .success-message {
     background: rgba(10, 148, 166, 0.13);
     color: var(--cupid-blue);
@@ -216,6 +231,35 @@ main > .message { max-width: 1040px; margin-left: auto; margin-right: auto; }
     background: rgba(10, 148, 166, 0.10);
     color: var(--cupid-blue);
     transform: translateY(-1px);
+}
+
+/* Icon-only return link for the profile-demo chooser. */
+.navigation-link.demo-return,
+.back-link.demo-return {
+    flex: 0 0 46px;
+    justify-content: center;
+    width: 46px;
+    min-width: 46px;
+    padding: 8px;
+}
+
+.demo-return-icon {
+    width: 24px;
+    height: 24px;
+    overflow: visible;
+}
+
+.demo-return-arrow {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.demo-return-person {
+    fill: currentColor;
+    transform: translateX(2px);
 }
 
 .viewer {
@@ -455,6 +499,13 @@ button { font-family: inherit; }
     line-height: 1.55;
 }
 
+/* Makes clear that choosing a profile is an assessment-demo switcher,
+   rather than authentication. */
+.home-page .demo-selector-note {
+    color: var(--cupid-muted);
+    font-size: 0.96rem;
+}
+
 .home-page .status {
     margin: 8px 0 0;
     padding: 8px 12px;
@@ -464,10 +515,13 @@ button { font-family: inherit; }
 
 .home-page .create-profile-link {
     margin-top: 4px;
-    padding: 13px 18px;
+    min-width: 142px;
+    padding: 12px 14px;
     border: 1px solid rgba(255, 255, 255, 0.52);
     border-radius: 14px;
     background: linear-gradient(135deg, var(--cupid-rose), #c85e78);
+    text-align: center;
+    white-space: nowrap;
     font-weight: 800;
 }
 
@@ -865,6 +919,94 @@ button { font-family: inherit; }
 
 .profile-page .bio { max-width: 65ch; font-size: 1.06rem; }
 
+.profile-page .profile-prompts {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(5, 114, 142, 0.18);
+}
+
+.profile-page .profile-prompts-heading h2 { margin: 5px 0 8px; }
+
+.profile-page .profile-prompts-heading > p:last-child {
+    margin: 0;
+    color: var(--cupid-muted);
+    line-height: 1.55;
+}
+
+.profile-page .profile-fact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.profile-page .profile-fact {
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+    border: 1px solid rgba(5, 114, 142, 0.16);
+    border-radius: 16px;
+    background: rgba(248, 255, 255, 0.85);
+}
+
+.profile-page .profile-fact-label,
+.profile-page .profile-prompt-label {
+    color: var(--cupid-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.profile-page .profile-fact strong { color: var(--cupid-navy); }
+
+.profile-page .profile-prompt-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.profile-page .profile-prompt-block {
+    display: grid;
+    align-content: start;
+    gap: 11px;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid rgba(168, 76, 100, 0.16);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.profile-page .profile-goals-block {
+    background: linear-gradient(145deg, rgba(255, 239, 243, 0.94), rgba(255, 255, 255, 0.91));
+}
+
+.profile-page .profile-goals-block strong { color: var(--cupid-rose); }
+
+.profile-page .profile-prompt-block p {
+    margin: 0;
+    color: var(--cupid-muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.profile-page .profile-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.profile-page .profile-tag-list span {
+    padding: 6px 9px;
+    border: 1px solid rgba(5, 114, 142, 0.20);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--cupid-navy);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
 .profile-page .gallery { gap: 15px; }
 
 .profile-page .primary-picture img {
@@ -924,10 +1066,21 @@ button { font-family: inherit; }
     background: #fff7f8;
 }
 
-.profile-editor-page main,
+.profile-editor-page main {
+    width: min(calc(100% - 48px), 920px);
+    max-width: 920px;
+    margin: clamp(28px, 5vw, 64px) auto;
+    padding: 0;
+}
+
 .settings-page main { max-width: 740px; }
 
-.profile-editor-page .card,
+.profile-editor-page .card {
+    width: min(100%, 740px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .settings-page .card {
     margin-top: 0;
     padding: clamp(27px, 5vw, 44px);
@@ -956,6 +1109,13 @@ button { font-family: inherit; }
 
 .profile-editor-page .submit-button,
 .settings-page .save-button { margin-top: 28px; }
+
+/* The profile form is saved after the separate photo-management step, so the
+   button intentionally stays outside both forms and points back to the form. */
+.profile-editor-page .profile-save-area {
+    width: min(100%, 740px);
+    margin: 0 auto;
+}
 
 .settings-page .setting-option {
     padding: 20px;
@@ -1071,6 +1231,9 @@ button { font-family: inherit; }
     }
 
     .history-page .profile-image { width: 58px; height: 58px; }
+
+    .profile-page .profile-fact-grid,
+    .profile-page .profile-prompt-grid { grid-template-columns: 1fr; }
 
     .history-page .history-details {
         grid-column: 1 / -1;

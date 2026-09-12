@@ -1,16 +1,21 @@
 package com.cupid.messaging;
 
+import com.cupid.matching.model.User;
 import com.cupid.matching.repository.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 /**
  * Displays conversations and processes the send-message form.
  *
- * Uses the same userId selection approach as the Matching UI.
- * This is a demonstration user selector, not authentication.
+ * Architecture: uses the same userId selection approach as the Matching UI.
+ * This is a demonstration user selector, not authentication; MessageService
+ * therefore validates both IDs for every request. Supports FR_Messages,
+ * FR_Messages_History, FR_Messages_Threads and FR_Web_UI.
  */
 @Controller
 @RequestMapping("/messages")
@@ -33,9 +38,20 @@ public class MessageController {
             @RequestParam(required = false) Long recipientId,
             Model model
     ) {
-        model.addAttribute("users", userRepository.findAllActive());
+        // The selector must only offer active profiles to protect the demo flow.
+        List<User> activeUsers = userRepository.findAllActive();
+        model.addAttribute("users", activeUsers);
         model.addAttribute("userId", userId);
         model.addAttribute("recipientId", recipientId);
+
+        // FR_Message_More_Ethics: this saved per-profile preference controls
+        // whether the selected user receives the optional conversation prompt.
+        boolean messageNotificationEnabled = activeUsers.stream()
+                .filter(user -> user.getId().equals(userId))
+                .findFirst()
+                .map(User::isMessageCoercionEnabled)
+                .orElse(false);
+        model.addAttribute("messageNotificationEnabled", messageNotificationEnabled);
 
         if (userId != null && recipientId != null) {
             try {
@@ -59,6 +75,7 @@ public class MessageController {
             RedirectAttributes redirect
     ) {
         try {
+            // Service validation includes the no-self-message invariant.
             messageService.sendMessage(userId, recipientId, messageText);
             redirect.addFlashAttribute("success", "Message sent.");
         } catch (IllegalArgumentException exception) {

@@ -19,6 +19,10 @@ import java.time.OffsetDateTime;
 
 /**
  * The latest swipe decision for one directed pair of users.
+ *
+ * Architecture: this is mutable state used by matching; {@link SwipeHistory}
+ * separately retains every decision for FR_Swipe_History. The unique pair
+ * constraint ensures one current decision per direction.
  */
 @Entity
 @Table(name = "current_swipes", uniqueConstraints = @UniqueConstraint(
@@ -88,6 +92,7 @@ public class CurrentSwipe {
     }
 
     public void setDecision(SwipeDecision decision) {
+        // Updating this row preserves the latest state without erasing history.
         this.decision = decision;
     }
 

@@ -26,6 +26,14 @@ COIT13235 Enterprise Software Development — Assignment 3.
 - `NFR_Input_Sanitise`
 - `NFR_Traceability`
 
+### Messaging - Hung
+
+- `FR_Messages`
+- `FR_Messages_History`
+- `FR_Messages_Threads`
+- `FR_Message_More_Ethics`
+- `FR_Web_UI`
+
 ## Technology
 
 - Java 17
@@ -85,4 +93,42 @@ for every user:
 ```properties
 # src/main/resources/application.properties
 cupid.profile.account-deletion-enabled=true
+```
+
+## Matching ethical safeguard
+
+Cupid keeps swipe decisions under the user's control. The optional swipe
+reminder is visible on the **Discover** page only when both controls below are
+enabled:
+
+- The application-wide setting in `application.properties`:
+
+  ```properties
+  cupid.matching.swipe-encouragement-enabled=true
+  ```
+
+  Set it to `false` to disable swipe reminders for every user with one setting.
+
+- The selected profile's **Show me swipe reminders** checkbox in **Account
+  Settings**. Clearing the checkbox and selecting **Save preferences** stores
+  `false` in that user's `swipe_encouragement_enabled` value. When that profile
+  returns to Discover, the reminder is not shown.
+
+The swipe, pass, matching, and swipe-history features remain available whether
+or not reminders are enabled.
+
+## Messaging ethical safeguard
+
+Cupid never requires a user to send a message. **Message notification** in
+**Account Settings** is a saved, per-profile opt-in control for the optional
+conversation prompt:
+
+1. With **Show message notifications** selected, the chosen profile sees the
+   optional reminder on the Messages page.
+2. Clearing the checkbox and selecting **Save preferences** stores `false` in
+   `message_coercion_enabled` for that profile.
+3. The reminder is then hidden for that profile, while existing conversations,
+   message history, and the ability to send messages remain available.
+
+This behaviour demonstrates `FR_Message_More_Ethics`: feature can be disabled through a single saved setting.
 

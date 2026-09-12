@@ -1,12 +1,12 @@
 package com.cupid.profile;
 
+import com.cupid.matching.config.MatchingProperties;
 import com.cupid.matching.model.User;
 import com.cupid.matching.repository.UserRepository;
 import com.cupid.profile.config.ProfileSettingsProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
  * Unit tests for Allaine's Profile lifecycle component.
  *
  * Supports FR_Profile, FR_Profile_Fetch, FR_Profile_Keep_Ethics,
+ * FR_Swipe_More_Ethics, FR_Message_More_Ethics,
  * NFR_Input_Sanitise, and NFR_Traceability.
  */
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +36,7 @@ class ProfileServiceTest {
     private UserRepository userRepository;
 
     private ProfileSettingsProperties profileSettings;
+    private MatchingProperties matchingSettings;
     private ProfileService profileService;
     private User alex;
 
@@ -42,7 +44,12 @@ class ProfileServiceTest {
     void setUp() {
         profileSettings = new ProfileSettingsProperties();
         profileSettings.setAccountDeletionEnabled(true);
-        profileService = new ProfileService(userRepository, profileSettings);
+        matchingSettings = new MatchingProperties();
+        profileService = new ProfileService(
+                userRepository,
+                profileSettings,
+                matchingSettings
+        );
         alex = new User(
                 1L,
                 "Alex",
@@ -213,6 +220,112 @@ class ProfileServiceTest {
 
         assertTrue(exception.getMessage().contains("DELETE"));
         assertTrue(alex.isActive());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    /**
+     * FR_Swipe_More_Ethics: recording the profile owner's opt-out for
+     * coercive swipe reminders persists the choice.
+     */
+    @Test
+    void updateSwipeEncouragementPreference_shouldPersistProfileChoice() {
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+        when(userRepository.save(alex)).thenReturn(alex);
+
+        profileService.updateSwipeEncouragementPreference(alex.getId(), false);
+
+        assertFalse(alex.isSwipeEncouragementEnabled());
+        verify(userRepository).save(alex);
+    }
+
+    /**
+     * FR_Message_More_Ethics: recording the profile owner's opt-out for
+     * coercive messaging pressure persists the choice.
+     */
+    @Test
+    void updateMessageCoercionPreference_shouldPersistProfileChoice() {
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+        when(userRepository.save(alex)).thenReturn(alex);
+
+        profileService.updateMessageCoercionPreference(alex.getId(), false);
+
+        assertFalse(alex.isMessageCoercionEnabled());
+        verify(userRepository).save(alex);
+    }
+
+    /**
+     * Discovery preferences: valid values are saved on the profile.
+     */
+    @Test
+    void updateDiscoveryPreferences_shouldPersistValidChoices() {
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+        when(userRepository.save(alex)).thenReturn(alex);
+
+        profileService.updateDiscoveryPreferences(
+                alex.getId(),
+                false,
+                "Spanish",
+                120,
+                21,
+                35
+        );
+
+        assertFalse(alex.isShowMeOnCupid());
+        assertEquals("Spanish", alex.getPreferredLanguage());
+        assertEquals(120, alex.getMaxDistanceKm());
+        assertEquals(21, alex.getPreferredMinAge());
+        assertEquals(35, alex.getPreferredMaxAge());
+        verify(userRepository).save(alex);
+    }
+
+    /**
+     * Discovery preferences: minimum age above maximum is rejected.
+     */
+    @Test
+    void updateDiscoveryPreferences_shouldRejectInvalidAgeRange() {
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+
+        ProfileException exception = assertThrows(
+                ProfileException.class,
+                () -> profileService.updateDiscoveryPreferences(
+                        alex.getId(),
+                        true,
+                        "English",
+                        80,
+                        60,
+                        30
+                )
+        );
+
+        assertTrue(exception.getMessage().contains("minimum"));
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    /**
+     * Discovery preferences: an unsupported language is rejected.
+     */
+    @Test
+    void updateDiscoveryPreferences_shouldRejectUnsupportedLanguage() {
+        when(userRepository.findById(alex.getId()))
+                .thenReturn(Optional.of(alex));
+
+        ProfileException exception = assertThrows(
+                ProfileException.class,
+                () -> profileService.updateDiscoveryPreferences(
+                        alex.getId(),
+                        true,
+                        "Klingon",
+                        80,
+                        18,
+                        60
+                )
+        );
+
+        assertTrue(exception.getMessage().toLowerCase().contains("language"));
         verify(userRepository, never()).save(any(User.class));
     }
 }

@@ -20,6 +20,11 @@ public class DiscoveryService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Resolves the selected demo viewer without treating the URL parameter as
+     * trusted. Active-profile filtering keeps deactivated users out of every
+     * Matching screen.
+     */
     public Optional<User> findViewer(Long viewerId) {
         if (viewerId == null || viewerId <= 0) {
             return Optional.empty();
@@ -30,6 +35,11 @@ public class DiscoveryService {
                 .filter(User::isActive);
     }
 
+    /**
+     * Asks the repository for one unswiped active profile. Discovery defaults
+     * are stored for future work but are intentionally not filtering this
+     * assessment demo yet.
+     */
     public Optional<User> findNextProfile(Long viewerId) {
         if (viewerId == null || viewerId <= 0) {
             return Optional.empty();

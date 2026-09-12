@@ -12,6 +12,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * HTTP boundary for Like and Dislike actions.
+ *
+ * Architecture: bean validation catches malformed form data here, while
+ * {@link SwipeService} repeats all business validation before persistence.
+ * This separation protects FR_Swipe when requests do not originate from the
+ * Cupid interface.
+ */
 @Controller
 public class SwipeController {
 
@@ -72,6 +80,7 @@ public class SwipeController {
     }
 
     private String redirectAfterSwipe(SwipeRequest request) {
+        // A safe fallback avoids building a redirect URL from an invalid ID.
         if (request.getViewerId() == null
                 || request.getViewerId() <= 0) {
             return "redirect:/";
