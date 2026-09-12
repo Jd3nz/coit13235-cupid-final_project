@@ -112,22 +112,8 @@ public class ProfileService {
             boolean confirmed,
             String deletionPhrase
     ) {
-    public void deactivateProfile(
-            Long profileId,
-            boolean confirmed,
-            String deletionPhrase
-    ) {
         if (!profileSettings.isAccountDeletionEnabled()) {
             throw new ProfileException(
-                    "Account deletion is currently disabled by Cupid's ethical settings."
-            );
-        }
-
-        User user = requireActiveProfile(profileId);
-
-        if (!user.isAccountDeactivationEnabled()) {
-            throw new ProfileException(
-                    "Enable account deletion in Account Settings before continuing."
                     "Account deletion is currently disabled by Cupid's ethical settings."
             );
         }
@@ -143,12 +129,6 @@ public class ProfileService {
         if (!confirmed) {
             throw new ProfileException(
                     "Confirm that you understand the account-deletion warning."
-            );
-        }
-
-        if (!"DELETE".equals(deletionPhrase == null ? "" : deletionPhrase.trim())) {
-            throw new ProfileException(
-                    "Type DELETE exactly to confirm account deletion."
             );
         }
 
