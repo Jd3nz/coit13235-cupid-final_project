@@ -61,8 +61,10 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute(
                     "successMessage",
                     "Profile created successfully. Add a photo to complete it."
+                    "Profile created successfully. Add a photo to complete it."
             );
 
+            return "redirect:/profiles/" + createdProfile.getId() + "#photo-upload";
             return "redirect:/profiles/" + createdProfile.getId() + "#photo-upload";
         } catch (ProfileException exception) {
             model.addAttribute("errorMessage", exception.getMessage());
@@ -95,8 +97,16 @@ public class ProfileController {
                 "globalAccountDeletionEnabled",
                 globalAccountDeletionEnabled
         );
+        boolean globalAccountDeletionEnabled =
+                profileService.isAccountDeletionEnabled();
+        model.addAttribute(
+                "globalAccountDeletionEnabled",
+                globalAccountDeletionEnabled
+        );
         model.addAttribute(
                 "accountDeletionEnabled",
+                globalAccountDeletionEnabled
+                        && profile.get().isAccountDeactivationEnabled()
                 globalAccountDeletionEnabled
                         && profile.get().isAccountDeactivationEnabled()
         );

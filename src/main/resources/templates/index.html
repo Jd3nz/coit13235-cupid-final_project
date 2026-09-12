@@ -177,20 +177,19 @@
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
 </head>
 
-<body>
+<body class="home-page">
 <main>
     <header class="page-header">
-        <h1>Cupid Matching Component</h1>
-
-        <p>
-            Select a user who will use the matching component.
-        </p>
+        <a class="home-brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid dating app logo">
+        </a>
+        <h1>Find your spark</h1>
 
         <div class="status">
             Swipe encouragement:
             <span
                 th:text="${
-                    swipeEncouragementEnabled
+                    swipeEncouragementEnabled == true
                     ? 'Enabled'
                     : 'Disabled'
                 }"
@@ -200,7 +199,7 @@
         </div>
 
         <a class="create-profile-link" th:href="@{/profiles/new}">
-            Create a profile
+            Create your profile
         </a>
     </header>
 
@@ -242,33 +241,7 @@
             >
                 Continue
             </a>
-
-            <a
-                class="profile-button"
-                th:href="@{/profiles/{profileId}(profileId=${user.id})}"
-            >
-                View or edit profile
-            </a>
-
-            <a
-                class="matches-button"
-                th:href="@{/matches(userId=${user.id})}"
-            >
-                My Matches
-            </a>
-            <a
-                class="matches-button"
-                th:href="@{/messages(userId=${user.id})}"
-            >
-                Messages
-            </a>
-            <a
-                class="history-button"
-                th:href="@{/history(userId=${user.id})}"
-            >
-                Swipe History
-            </a>
-</div>
+            </div>
 
         </article>
     </section>

@@ -26,6 +26,7 @@
             align-items: center;
             gap: 16px;
         }
+        .profile-actions { display: flex; flex-wrap: wrap; gap: 10px; }
         .back-link, .edit-link {
             color: #344054;
             font-weight: 700;
@@ -67,6 +68,52 @@
         .danger-zone h2 { color: #991b1b; }
         .confirmation { display: flex; gap: 10px; align-items: flex-start; }
         .confirmation input { margin-top: 4px; }
+        .deletion-dialog {
+            width: min(460px, calc(100% - 32px));
+            border: 1px solid #F2AAB7;
+            border-radius: 18px;
+            padding: 0;
+            color: #011027;
+            box-shadow: 0 24px 70px rgba(1, 16, 39, 0.28);
+        }
+        .deletion-dialog::backdrop { background: rgba(1, 16, 39, 0.65); }
+        .dialog-content { padding: 28px; }
+        .dialog-content h3 { margin-top: 0; color: #A84C64; }
+        .dialog-warning {
+            padding: 12px;
+            border-radius: 10px;
+            background: #fff0f2;
+            line-height: 1.5;
+        }
+        .deletion-phrase-label {
+            display: grid;
+            gap: 8px;
+            margin-top: 18px;
+            font-weight: 700;
+        }
+        .deletion-phrase-label input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #A84C64;
+            border-radius: 8px;
+            font: inherit;
+        }
+        .dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .cancel-button {
+            padding: 12px 16px;
+            border: 1px solid #05728E;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #05728E;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
         .deactivate-button {
             margin-top: 16px;
             padding: 12px 16px;
@@ -126,16 +173,28 @@
     </style>
     <link rel="stylesheet" th:href="@{/css/cupid.css}">
 </head>
-<body>
+<body class="profile-page">
 <main>
     <nav class="top-navigation">
-        <a class="back-link" th:href="@{/}">← Back to Cupid</a>
-        
-                class="edit-link"
-                th:href="@{/profiles/{profileId}/edit(profileId=${profile.id})}"
-        >
-            Edit profile
+        <a class="brand-logo" th:href="@{/}" aria-label="Cupid home">
+            <img th:src="@{/images/cupid-logo.png}" alt="Cupid logo">
         </a>
+        <div class="navigation-links">
+            <a class="navigation-link" th:href="@{/}">← Back to Cupid</a>
+            <span class="navigation-link current-link" aria-current="page">View Profile</span>
+            <a class="navigation-link"
+               th:href="@{/discover(userId=${profile.id})}">Discover</a>
+            <a class="navigation-link"
+               th:href="@{/matches(userId=${profile.id})}">My Matches</a>
+            <a class="navigation-link"
+               th:href="@{/history(userId=${profile.id})}">Swipe History</a>
+            <a class="navigation-link"
+               th:href="@{/messages(userId=${profile.id})}">Messages</a>
+        </div>
+        <span class="viewer viewer-status">
+            <span class="viewer-status-label">Viewing as</span>
+            <span class="viewer-status-name" th:text="${profile.displayName}">Cupid profile</span>
+        </span>
     </nav>
 
     <p
@@ -196,8 +255,8 @@
         <p class="bio" th:text="${profile.bio}">Profile biography</p>
     </section>
 
-    <section class="card">
-        <h2>Upload a picture</h2>
+    <section id="photo-upload" class="card">
+        <h2>Add profile photos</h2>
         <form
             th:action="@{/profiles/{profileId}/pictures(profileId=${profile.id})}"
             method="post"
@@ -207,15 +266,16 @@
             <button type="submit" class="upload-button">Upload</button>
         </form>
         <p class="hint">
-            JPEG, PNG or WebP. Up to 5 MB per picture, six pictures per profile.
+            Add up to six JPEG, PNG or WebP images. Each image can be up to 5 MB.
         </p>
     </section>
 
     <section class="danger-zone">
-        <h2>Deactivate account</h2>
+        <h2>Delete account</h2>
         <p>
-            Deactivation removes this profile from Cupid discovery while
-            retaining swipe and match records for data integrity.
+            Deleting your account removes this profile from Cupid discovery.
+            Cupid retains swipe and match records for data integrity, but this
+            action cannot be undone through the application.
         </p>
 
         <form
@@ -223,20 +283,114 @@
                 th:action="@{/profiles/{profileId}/deactivate(profileId=${profile.id})}"
                 method="post"
         >
-            <label class="confirmation">
-                <input type="checkbox" name="confirmed" value="true" required>
-                <span>I understand this makes my profile unavailable to other users.</span>
+            <label class="confirmation" for="deletionAcknowledged">
+                <input
+                        id="deletionAcknowledged"
+                        type="checkbox"
+                        name="confirmed"
+                        value="true"
+                        required
+                >
+                <span>I understand that this deletes my account from Cupid.</span>
             </label>
-            <button class="deactivate-button" type="submit">
-                Deactivate my account
-            </button>
+
+            <dialog
+                    id="deletionConfirmationDialog"
+                    class="deletion-dialog"
+                    aria-labelledby="deletionDialogTitle"
+            >
+                <div class="dialog-content">
+                    <h3 id="deletionDialogTitle">Final account-deletion confirmation</h3>
+                    <p class="dialog-warning">
+                        This cannot be undone through Cupid. Type <strong>DELETE</strong>
+                        exactly to confirm that you want to delete your account.
+                    </p>
+                    <label class="deletion-phrase-label" for="deletionPhrase">
+                        Type DELETE
+                        <input
+                                id="deletionPhrase"
+                                type="text"
+                                name="deletionPhrase"
+                                maxlength="6"
+                                pattern="DELETE"
+                                autocomplete="off"
+                                required
+                        >
+                    </label>
+                    <div class="dialog-actions">
+                        <button id="cancelDeletionButton" class="cancel-button" type="button">
+                            Cancel
+                        </button>
+                        <button class="deactivate-button" type="submit">
+                            Delete my account
+                        </button>
+                    </div>
+                </div>
+            </dialog>
         </form>
 
-        <p class="ethics-note" th:unless="${accountDeletionEnabled}">
-            Account deletion is currently disabled by Cupid's ethical settings.
-            Changing the single shared setting enables this carefully confirmed action.
+        <p class="ethics-note" th:if="${!globalAccountDeletionEnabled}">
+            Account deletion is currently unavailable because Cupid's single
+            ethical setting has disabled it for all users.
+        </p>
+
+        <p
+                class="ethics-note"
+                th:if="${globalAccountDeletionEnabled and !profile.accountDeactivationEnabled}"
+        >
+            Account deletion is off for this profile. Open Account settings to
+            enable the carefully guarded deletion process first.
         </p>
     </section>
+
+    <section class="profile-management" aria-labelledby="profile-management-title">
+        <div>
+            <p class="eyebrow">PROFILE TOOLS</p>
+            <h2 id="profile-management-title">Manage profile</h2>
+            <p>Update profile details or change account preferences.</p>
+        </div>
+        <div class="profile-actions profile-footer-actions">
+            <a class="edit-link"
+               th:href="@{/profiles/{profileId}/edit(profileId=${profile.id})}">
+                Edit profile
+            </a>
+            <a class="edit-link"
+               th:href="@{/profiles/{profileId}/settings(profileId=${profile.id})}">
+                Account settings
+            </a>
+        </div>
+    </section>
 </main>
+<script>
+    (() => {
+        const acknowledgement = document.getElementById("deletionAcknowledged");
+        const dialog = document.getElementById("deletionConfirmationDialog");
+        const phraseInput = document.getElementById("deletionPhrase");
+        const cancelButton = document.getElementById("cancelDeletionButton");
+
+        if (!acknowledgement || !dialog || !phraseInput || !cancelButton) {
+            return;
+        }
+
+        acknowledgement.addEventListener("change", () => {
+            if (acknowledgement.checked && !dialog.open) {
+                dialog.showModal();
+                phraseInput.focus();
+            }
+        });
+
+        const cancelDeletion = () => {
+            phraseInput.value = "";
+            acknowledgement.checked = false;
+            dialog.close();
+        };
+
+        cancelButton.addEventListener("click", cancelDeletion);
+        dialog.addEventListener("cancel", () => {
+            acknowledgement.checked = false;
+            phraseInput.value = "";
+        });
+    })();
+</script>
 </body>
 </html>

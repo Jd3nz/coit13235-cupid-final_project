@@ -10,6 +10,9 @@ COIT13235 Enterprise Software Development — Assignment 3.
 - `FR_Profile_Fetch`
 - `FR_Profile_Keep_Ethics`
 
+### Profile Picture - Tanzim 
+-'FR_Profile_Picture'
+
 ### Matching - Jay
 
 - `FR_Swipe`
@@ -22,21 +25,6 @@ COIT13235 Enterprise Software Development — Assignment 3.
 - `NFR_Deployability`
 - `NFR_Input_Sanitise`
 - `NFR_Traceability`
-
-## Profile ethical safeguard
-
-Account deletion is implemented as a soft deactivation so that the profile is
-removed from discovery while existing swipe and match records remain valid.
-It is disabled by default. To demonstrate the deliberately difficult but
-possible action, set the following single property to `true` and restart the
-application:
-
-```properties
-cupid.profile.account-deletion-enabled=true
-```
-
-The Profile component still requires an explicit checkbox confirmation before
-deactivation is processed by the server.
 
 ## Technology
 
@@ -85,4 +73,16 @@ deactivation is processed by the server.
    ```text
    http://localhost:8080
    ```
+
+## Profile ethical safeguard
+
+Account deletion is implemented as a soft deactivation: the profile is removed
+from Cupid discovery while existing swipe and match records remain valid.
+
+Cupid uses one global setting to control whether account deletion is available
+for every user:
+
+```properties
+# src/main/resources/application.properties
+cupid.profile.account-deletion-enabled=true
 
